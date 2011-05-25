@@ -76,7 +76,6 @@ class db(object):
         self.cookiename = cookiename
         self.path = path
         self.lock = threading.Lock()
-        self.lastuse = 0
         self.cthread = None
         self.freezetime = 3600
 
@@ -99,18 +98,17 @@ class db(object):
 
     def cleanloop(self):
         try:
-            lastuse = self.lastuse
-            while self.lastuse >= lastuse:
-                lastuse = self.lastuse
+            while True:
                 time.sleep(300)
                 self.clean()
+                if len(self.live) == 0:
+                    break
         finally:
             with self.lock:
                 self.cthread = None
 
     def fetch(self, req):
         now = int(time.time())
-        self.lastuse = now
         sessid = cookie.get(req, self.cookiename)
         with self.lock:
             if self.cthread is None:

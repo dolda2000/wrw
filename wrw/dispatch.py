@@ -21,7 +21,7 @@ def handle(req, startreq, handler):
                 resp = handler(req)
                 break
             except restart, i:
-                handler = i
+                handler = i.handle
         req.commit(startreq)
         return resp
     finally:

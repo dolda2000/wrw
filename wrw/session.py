@@ -129,18 +129,17 @@ class db(object):
             except KeyError:
                 sess = session()
                 self.live[sess.id] = sess
-                req.oncommit(self.addcookie)
+                sess.new = True
         req.oncommit(self.ckfreeze)
         return sess
-
-    def addcookie(self, req):
-        sess = req.item(self.fetch)
-        cookie.add(req, self.cookiename, sess.id, self.path)
 
     def ckfreeze(self, req):
         sess = req.item(self.fetch)
         if sess.dirty():
             try:
+                if getattr(sess, "new", False):
+                    cookie.add(req, self.cookiename, sess.id, self.path)
+                    del sess.new
                 self.freeze(sess)
             except:
                 pass

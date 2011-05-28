@@ -15,7 +15,7 @@ class skeleton(object):
 </body>
 </html>""" % (self.head(title), content)
 
-    def skel(self, title):
+    def head(self, title):
         return """<title>%s</title>\n%s""" % (title, self.style())
 
     def style(self):
@@ -65,8 +65,8 @@ class httperror(usererror):
 
     def handle(self, req):
         req.status(self.status, self.message)
-        super(httperror, self).handle(req)
+        return super(httperror, self).handle(req)
 
 class notfound(httperror):
     def __init__(self):
-        super(notfound, self).__init__(404)
+        return super(notfound, self).__init__(404)

@@ -2,7 +2,7 @@ import req, dispatch, session
 
 def wsgiwrap(callable):
     def wrapper(env, startreq):
-        return dispatch.handle(req.request(env), startreq, callable)
+        return dispatch.handle(req.origrequest(env), startreq, callable)
     return wrapper
 
 def persession(data = None):

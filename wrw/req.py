@@ -50,6 +50,16 @@ def fixcase(str):
     return str
 
 class request(object):
+    def copy(self):
+        return copyrequest(self)
+
+    def shift(self, n):
+        new = self.copy()
+        new.uriname = self.uriname + self.pathinfo[:n]
+        new.pathinfo = self.pathinfo[n:]
+        return new
+
+class origrequest(request):
     def __init__(self, env):
         self.env = env
         self.uriname = env["SCRIPT_NAME"]
@@ -117,3 +127,37 @@ class request(object):
             for val in self.ohead.getlist(nm):
                 hdrs.append((nm, val))
         startreq("%s %s" % self.statuscode, hdrs)
+
+    def topreq(self):
+        return self
+
+class copyrequest(request):
+    def __init__(self, p):
+        self.parent = p
+        self.top = p.topreq()
+        self.env = p.env
+        self.uriname = p.uriname
+        self.filename = p.filename
+        self.uri = p.uri
+        self.pathinfo = p.pathinfo
+        self.query = p.query
+        self.remoteaddr = p.remoteaddr
+        self.serverport = p.serverport
+        self.https = p.https
+        self.ihead = p.ihead
+        self.ohead = p.ohead
+
+    def status(self, code, msg):
+        return self.parent.status(code, msg)
+
+    def item(self, id):
+        return self.top.item(id)
+
+    def withres(self, res):
+        return self.top.withres(res)
+
+    def oncommit(self, fn):
+        return self.top.oncommit(fn)
+
+    def topreq(self):
+        return self.parent.topreq()

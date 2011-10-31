@@ -9,7 +9,10 @@ def addcookies(req):
 
 class cookiedict(object):
     def __init__(self, req):
-        self.bk = Cookie.SimpleCookie(req.ihead.get("Cookie"))
+        try:
+            self.bk = Cookie.SimpleCookie(req.ihead.get("Cookie"))
+        except Cookie.CookieError:
+            self.bk = Cookie.SimpleCookie()
         self.codec = Cookie.SimpleCookie()
         req.oncommit(addcookies)
 

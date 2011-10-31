@@ -4,7 +4,7 @@ __all__ = ["formdata"]
 
 class formwrap(object):
     def __init__(self, req):
-        if req.ihead["Content-Type"] == "application/x-www-form-urlencoded":
+        if req.ihead.get("Content-Type") == "application/x-www-form-urlencoded":
             self.cf = cgi.parse(environ = req.env, fp = req.env["wsgi.input"])
         else:
             self.cf = cgi.parse(environ = req.env)

@@ -8,4 +8,5 @@ setup(name = "wrw",
       author = "Fredrik Tolf",
       author_email = "fredrik@dolda2000.com",
       packages = ["wrw"],
+      package_data = {"wrw": ["makolib/*.mako"]},
       license = "GPL-3")

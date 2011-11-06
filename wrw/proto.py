@@ -39,6 +39,56 @@ def urlq(url):
             ret += c
     return ret
 
+class urlerror(ValueError):
+    pass
+
+def parseurl(url):
+    p = url.find("://")
+    if p < 0:
+        raise urlerror("Protocol not found in absolute URL `%s'" % url)
+    proto = url[:p]
+    l = url.find("/", p + 3)
+    if l < 0:
+        raise urlerror("Local part not found in absolute URL `%s'" % url)
+    host = url[p + 3:l]
+    local = url[l:]
+    q = local.find("?")
+    if q < 0:
+        query = ""
+    else:
+        query = local[q + 1:]
+        local = local[:q]
+    return proto, host, local, query
+
+def consurl(proto, host, local, query = ""):
+    if len(local) < 1 and local[0] != '/':
+        raise urlerror("Local part of URL must begin with a slash")
+    ret = "%s://%s%s" % (proto, host, local)
+    if len(query) > 0:
+        ret += "?" + query
+    return ret
+
+def appendurl(url, other):
+    if "://" in other:
+        return other
+    proto, host, local, query = parseurl(url)
+    if len(other) > 0 and other[0] == '/':
+        return consurl(proto, host, other)
+    else:
+        p = local.rfind('/')
+        return consurl(proto, host, local[:p + 1] + other)
+
+def requrl(req):
+    host = req.ihead.get("Host", None)
+    if host is None:
+        raise Exception("Could not reconstruct URL because no Host header was sent")
+    proto = "http"
+    if req.https:
+        proto = "https"
+    if req.uri[0] != '/':
+        raise Exception("Malformed local part when reconstructing URL")
+    return "%s://%s%s" % (proto, host, req.uri)
+
 def parstring(pars = {}, **augment):
     buf = ""
     for key in pars:

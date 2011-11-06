@@ -70,3 +70,14 @@ class httperror(usererror):
 class notfound(httperror):
     def __init__(self):
         return super(notfound, self).__init__(404)
+
+class redirect(dispatch.restart):
+    def __init__(self, url, status = 303):
+        super(redirect, self).__init__()
+        self.url = url
+        self.status = status
+
+    def handle(self, req):
+        req.status(self.status, "Redirect")
+        req.ohead["Location"] = proto.appendurl(proto.requrl(req), self.url)
+        return []

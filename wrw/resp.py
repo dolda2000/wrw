@@ -1,4 +1,4 @@
-import dispatch, proto
+from . import dispatch, proto
 
 __all__ = ["skeleton", "skelfor", "setskel", "usererror"]
 

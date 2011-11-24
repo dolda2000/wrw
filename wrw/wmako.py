@@ -1,6 +1,6 @@
 import os, threading
 from mako import template, lookup, filters
-import util, form, session
+from . import util, form, session
 
 # It seems Mako isn't thread-safe.
 makolock = threading.Lock()

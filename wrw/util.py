@@ -1,4 +1,4 @@
-from . import req, dispatch, session
+import req, dispatch, session
 
 def wsgiwrap(callable):
     def wrapper(env, startreq):

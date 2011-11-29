@@ -1,5 +1,5 @@
 import threading, time, pickle, random, os
-from . import cookie
+import cookie
 
 __all__ = ["db", "get"]
 

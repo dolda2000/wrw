@@ -1,5 +1,5 @@
 import os
-from . import resp
+import resp
 pj = os.path.join
 
 __all__ = ["filehandler"]

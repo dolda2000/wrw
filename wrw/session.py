@@ -134,7 +134,7 @@ class db(object):
         return sess
 
     def ckfreeze(self, req):
-        sess = req.item(self.fetch)
+        sess = self.get(req)
         if sess.dirty():
             try:
                 if getattr(sess, "new", False):
@@ -149,6 +149,9 @@ class db(object):
 
     def freeze(self, sess):
         raise TypeError()
+
+    def get(self, req):
+        return req.item(self.fetch)
 
 class backeddb(db):
     def __init__(self, backdb, *args, **kw):
@@ -186,4 +189,4 @@ class dirback(object):
 default = backeddb(dirback(os.path.join("/tmp", "wrwsess-" + str(os.getuid()))))
 
 def get(req):
-    return req.item(default.fetch)
+    return default.get(req)

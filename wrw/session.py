@@ -110,6 +110,7 @@ class db(object):
     def fetch(self, req):
         now = int(time.time())
         sessid = cookie.get(req, self.cookiename)
+        new = False
         with self.lock:
             if self.cthread is None:
                 self.cthread = threading.Thread(target = self.cleanloop)
@@ -129,20 +130,18 @@ class db(object):
             except KeyError:
                 sess = session()
                 self.live[sess.id] = sess
-                sess.new = True
-        req.oncommit(self.ckfreeze)
-        return sess
+                new = True
 
-    def ckfreeze(self, req):
-        sess = self.get(req)
-        if sess.dirty():
-            try:
-                if getattr(sess, "new", False):
-                    cookie.add(req, self.cookiename, sess.id, self.path)
-                    del sess.new
-                self.freeze(sess)
-            except:
-                pass
+        def ckfreeze(req):
+            if sess.dirty():
+                try:
+                    if new:
+                        cookie.add(req, self.cookiename, sess.id, self.path)
+                    self.freeze(sess)
+                except:
+                    pass
+        req.oncommit(ckfreeze)
+        return sess
 
     def thaw(self, sessid):
         raise KeyError()

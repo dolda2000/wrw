@@ -1,4 +1,4 @@
-import Cookie
+import http.cookies
 
 __all__ = ["cookies", "get", "add"]
 
@@ -10,10 +10,10 @@ def addcookies(req):
 class cookiedict(object):
     def __init__(self, req):
         try:
-            self.bk = Cookie.SimpleCookie(req.ihead.get("Cookie"))
-        except Cookie.CookieError:
-            self.bk = Cookie.SimpleCookie()
-        self.codec = Cookie.SimpleCookie()
+            self.bk = http.cookies.SimpleCookie(req.ihead.get("Cookie"))
+        except http.cookies.CookieError:
+            self.bk = http.cookies.SimpleCookie()
+        self.codec = http.cookies.SimpleCookie()
         req.oncommit(addcookies)
 
     def __getitem__(self, name):

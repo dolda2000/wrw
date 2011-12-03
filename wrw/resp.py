@@ -38,7 +38,7 @@ def setskel(req, skel):
 
 class usererror(dispatch.restart):
     def __init__(self, message, detail):
-        super(usererror, self).__init__()
+        super().__init__()
         self.message = message
         self.detail = detail
 
@@ -47,7 +47,7 @@ class usererror(dispatch.restart):
 
 class message(dispatch.restart):
     def __init__(self, message, detail):
-        super(message, self).__init__()
+        super().__init__()
         self.message = message
         self.detail = detail
 
@@ -60,20 +60,20 @@ class httperror(usererror):
             message = proto.statusinfo[status][0]
         if detail is None:
             detail = proto.statusinfo[status][1]
-        super(httperror, self).__init__(message, detail)
+        super().__init__(message, detail)
         self.status = status
 
     def handle(self, req):
         req.status(self.status, self.message)
-        return super(httperror, self).handle(req)
+        return super().handle(req)
 
 class notfound(httperror):
     def __init__(self):
-        return super(notfound, self).__init__(404)
+        return super().__init__(404)
 
 class redirect(dispatch.restart):
     def __init__(self, url, status = 303):
-        super(redirect, self).__init__()
+        super().__init__()
         self.url = url
         self.status = status
 

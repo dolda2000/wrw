@@ -31,7 +31,7 @@ class formwrap(object):
         return list(iter())
 
     def keys(self):
-        return self.cf.keys()
+        return list(self.cf.keys())
 
     def values(self):
         return [val for key, val in self.items()]

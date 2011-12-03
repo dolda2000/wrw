@@ -29,7 +29,7 @@ class filehandler(object):
             elif ext == "html":
                 ctype = "text/html"
         req.ohead["Content-Type"] = ctype
-        return open(path, "r")
+        return open(path, "rb")
 
     def resolvefile(self, req, curpath, el):
         if os.path.isfile(pj(curpath, el)):

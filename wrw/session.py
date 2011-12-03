@@ -11,7 +11,7 @@ def hexencode(str):
 
 def gennonce(length):
     nonce = ""
-    for i in xrange(length):
+    for i in range(length):
         nonce += chr(random.randint(0, 255))
     return nonce
 
@@ -83,7 +83,7 @@ class db(object):
         now = int(time.time())
         with self.lock:
             dlist = []
-            for sess in self.live.itervalues():
+            for sess in self.live.values():
                 if sess.atime + self.freezetime < now:
                     try:
                         if sess.dirty():
@@ -154,14 +154,14 @@ class db(object):
 
 class backeddb(db):
     def __init__(self, backdb, *args, **kw):
-        super(backeddb, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         self.backdb = backdb
 
     def thaw(self, sessid):
         data = self.backdb[sessid]
         try:
             return pickle.loads(data)
-        except Exception, e:
+        except:
             raise KeyError()
 
     def freeze(self, sess):

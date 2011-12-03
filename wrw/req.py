@@ -17,7 +17,7 @@ class headdict(object):
         del self.dict[key.lower()]
 
     def __iter__(self):
-        return iter((list[0] for list in self.dict.itervalues()))
+        return iter((list[0] for list in self.dict.values()))
     
     def get(self, key, default = ""):
         if key.lower() in self.dict:

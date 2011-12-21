@@ -129,14 +129,15 @@ class db(object):
                 sess.atime = now
             except KeyError:
                 sess = session()
-                self.live[sess.id] = sess
                 new = True
 
         def ckfreeze(req):
             if sess.dirty():
+                if new:
+                    cookie.add(req, self.cookiename, sess.id, self.path)
+                    with self.lock:
+                        self.live[sess.id] = sess
                 try:
-                    if new:
-                        cookie.add(req, self.cookiename, sess.id, self.path)
                     self.freeze(sess)
                 except:
                     pass

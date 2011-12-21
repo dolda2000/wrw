@@ -13,12 +13,38 @@ def mangle(result):
         return result
     return [str(result)]
 
+class iterproxy(object):
+    # Makes sure iter(real).next() is called immediately, in order to
+    # let generator code run.
+    def __init__(self, real):
+        self.bk = real
+        self.bki = iter(real)
+        self._next = [None]
+        self.next()
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        if self._next is None:
+            raise StopIteration()
+        ret = self._next[0]
+        try:
+            self._next[:] = [self.bki.next()]
+        except StopIteration:
+            self._next = None
+        return ret
+
+    def close(self):
+        if hasattr(self.bk, "close"):
+            self.bk.close()
+
 def handle(req, startreq, handler):
     try:
         resp = [""]
         while True:
             try:
-                resp = handler(req)
+                resp = iterproxy(handler(req))
                 break
             except restart as i:
                 handler = i.handle

@@ -19,3 +19,35 @@ def persession(data = None):
             return sess[callable].handle(req)
         return wrapper
     return dec
+
+class sessiondata(object):
+    @classmethod
+    def get(cls, req):
+        sess = cls.sessdb().get(req)
+        with sess.lock:
+            try:
+                return sess[cls]
+            except KeyError:
+                ret = cls(req)
+                ret._is_dirty = [False]
+                sess[cls] = ret
+                return ret
+
+    @classmethod
+    def sessdb(cls):
+        return session.default
+
+    def sessfrozen(self):
+        self._is_dirty[:] = [False]
+
+    def sessdirty(self):
+        return self._is_dirty[0]
+
+    def __setattr__(self, name, value):
+        if hasattr(self, "_is_dirty"):
+            self._is_dirty[:] = [True]
+        super(sessiondata, self).__setattr__(name, value)
+
+    def __delattr__(self, name):
+        super(sessiondata, self).__delattr__(name)
+        self._is_dirty[:] = [True]

@@ -58,3 +58,17 @@ class autodirty(sessiondata):
         super(autodirty, self).__delattr__(name, value)
         if "_is_dirty" in self.__dict__:
             self.__dict__["_is_dirty"] = True
+
+class manudirty(object):
+    def __init__(self, *args, **kwargs):
+        super(manudirty, self).__init__(*args, **kwargs)
+        self.__dirty = False
+
+    def sessfrozen(self):
+        self.__dirty = False
+
+    def sessdirty(self):
+        return self.__dirty
+
+    def dirty(self):
+        self.__dirty = True

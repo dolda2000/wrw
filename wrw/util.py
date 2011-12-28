@@ -29,7 +29,6 @@ class sessiondata(object):
                 return sess[cls]
             except KeyError:
                 ret = cls(req)
-                ret._is_dirty = [False]
                 sess[cls] = ret
                 return ret
 
@@ -37,17 +36,39 @@ class sessiondata(object):
     def sessdb(cls):
         return session.default
 
+class autodirty(sessiondata):
+    @classmethod
+    def get(cls, req):
+        ret = super().get(req)
+        if "_is_dirty" not in ret.__dict__:
+            ret.__dict__["_is_dirty"] = False
+
     def sessfrozen(self):
-        self._is_dirty[:] = [False]
+        self.__dict__["_is_dirty"] = False
 
     def sessdirty(self):
-        return self._is_dirty[0]
+        return self._is_dirty
 
     def __setattr__(self, name, value):
-        if hasattr(self, "_is_dirty"):
-            self._is_dirty[:] = [True]
         super().__setattr__(name, value)
+        if "_is_dirty" in self.__dict__:
+            self.__dict__["_is_dirty"] = True
 
     def __delattr__(self, name):
-        super().__delattr__(name)
-        self._is_dirty[:] = [True]
+        super().__delattr__(name, value)
+        if "_is_dirty" in self.__dict__:
+            self.__dict__["_is_dirty"] = True
+
+class manudirty(object):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__dirty = False
+
+    def sessfrozen(self):
+        self.__dirty = False
+
+    def sessdirty(self):
+        return self.__dirty
+
+    def dirty(self):
+        self.__dirty = True

@@ -42,6 +42,7 @@ class autodirty(sessiondata):
         ret = super(autodirty, cls).get(req)
         if "_is_dirty" not in ret.__dict__:
             ret.__dict__["_is_dirty"] = False
+        return ret
 
     def sessfrozen(self):
         self.__dict__["_is_dirty"] = False

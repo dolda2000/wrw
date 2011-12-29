@@ -20,17 +20,17 @@ class iterproxy(object):
         self.bk = real
         self.bki = iter(real)
         self._next = [None]
-        self.next()
+        self.__next__()
 
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if self._next is None:
             raise StopIteration()
         ret = self._next[0]
         try:
-            self._next[:] = [self.bki.next()]
+            self._next[:] = [self.bki.__next__()]
         except StopIteration:
             self._next = None
         return ret

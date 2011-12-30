@@ -1,8 +1,22 @@
-from . import req, dispatch, session
+import inspect
+from . import req, dispatch, session, form
 
 def wsgiwrap(callable):
     def wrapper(env, startreq):
         return dispatch.handle(req.origrequest(env), startreq, callable)
+    return wrapper
+
+def formparams(callable):
+    def wrapper(req):
+        data = form.formdata(req)
+        spec = inspect.getargspec(callable)
+        args = dict(data.items())
+        args["req"] = req
+        if not spec.keywords:
+            for arg in list(args):
+                if arg not in spec.args:
+                    del args[arg]
+        return callable(**args)
     return wrapper
 
 def persession(data = None):

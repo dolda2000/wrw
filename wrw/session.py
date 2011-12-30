@@ -166,7 +166,7 @@ class backeddb(db):
             raise KeyError()
 
     def freeze(self, sess):
-        self.backdb[sess.id] = pickle.dumps(sess)
+        self.backdb[sess.id] = pickle.dumps(sess, -1)
         sess.frozen()
 
 class dirback(object):

@@ -71,13 +71,14 @@ class session(object):
         self.lock = threading.Lock()
 
 class db(object):
-    def __init__(self, cookiename = "wrwsess", path = "/"):
+    def __init__(self, backdb = None, cookiename = "wrwsess", path = "/"):
         self.live = {}
         self.cookiename = cookiename
         self.path = path
         self.lock = threading.Lock()
         self.cthread = None
         self.freezetime = 3600
+        self.backdb = backdb
 
     def clean(self):
         now = int(time.time())
@@ -145,20 +146,8 @@ class db(object):
         return sess
 
     def thaw(self, sessid):
-        raise KeyError()
-
-    def freeze(self, sess):
-        raise TypeError()
-
-    def get(self, req):
-        return req.item(self.fetch)
-
-class backeddb(db):
-    def __init__(self, backdb, *args, **kw):
-        super(backeddb, self).__init__(*args, **kw)
-        self.backdb = backdb
-
-    def thaw(self, sessid):
+        if self.backdb is None:
+            raise KeyError()
         data = self.backdb[sessid]
         try:
             return pickle.loads(data)
@@ -166,8 +155,13 @@ class backeddb(db):
             raise KeyError()
 
     def freeze(self, sess):
+        if self.backdb is None:
+            raise TypeError()
         self.backdb[sess.id] = pickle.dumps(sess, -1)
         sess.frozen()
+
+    def get(self, req):
+        return req.item(self.fetch)
 
 class dirback(object):
     def __init__(self, path):
@@ -186,7 +180,7 @@ class dirback(object):
         with open(os.path.join(self.path, key), "w") as out:
             out.write(value)
 
-default = backeddb(dirback(os.path.join("/tmp", "wrwsess-" + str(os.getuid()))))
+default = db(backdb = dirback(os.path.join("/tmp", "wrwsess-" + str(os.getuid()))))
 
 def get(req):
     return default.get(req)

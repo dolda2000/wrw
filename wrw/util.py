@@ -36,12 +36,14 @@ def persession(data = None):
 
 class sessiondata(object):
     @classmethod
-    def get(cls, req):
+    def get(cls, req, create = True):
         sess = cls.sessdb().get(req)
         with sess.lock:
             try:
                 return sess[cls]
             except KeyError:
+                if not create:
+                    return None
                 ret = cls(req)
                 sess[cls] = ret
                 return ret

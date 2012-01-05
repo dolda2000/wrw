@@ -46,9 +46,9 @@ class usererror(dispatch.restart):
         return [skelfor(req).error(self.message, self.detail)]
 
 class message(dispatch.restart):
-    def __init__(self, message, detail):
+    def __init__(self, msg, detail):
         super(message, self).__init__()
-        self.message = message
+        self.message = msg
         self.detail = detail
 
     def handle(self, req):

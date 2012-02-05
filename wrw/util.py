@@ -50,7 +50,7 @@ class sessiondata(object):
 
     @classmethod
     def sessdb(cls):
-        return session.default
+        return session.default.val
 
 class autodirty(sessiondata):
     @classmethod

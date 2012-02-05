@@ -1,5 +1,5 @@
 import threading, time, pickle, random, os
-from . import cookie
+from . import cookie, env
 
 __all__ = ["db", "get"]
 
@@ -180,7 +180,7 @@ class dirback(object):
         with open(os.path.join(self.path, key), "w") as out:
             out.write(value)
 
-default = db(backdb = dirback(os.path.join("/tmp", "wrwsess-" + str(os.getuid()))))
+default = env.var(db(backdb = dirback(os.path.join("/tmp", "wrwsess-" + str(os.getuid())))))
 
 def get(req):
-    return default.get(req)
+    return default.val.get(req)

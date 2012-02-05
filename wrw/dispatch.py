@@ -1,3 +1,6 @@
+import sys, traceback
+from . import env
+
 __all__ = ["restart"]
 
 class restart(Exception):
@@ -39,7 +42,20 @@ class iterproxy(object):
         if hasattr(self.bk, "close"):
             self.bk.close()
 
+def defaulterror(req, excinfo):
+    from . import resp
+    traceback.print_exception(*excinfo)
+    raise resp.httperror(500)
+
+def wraphandler(handler, excinfo):
+    def wrapped(req):
+        return handler(req, excinfo)
+    return wrapped
+
+errorhandler = env.var(defaulterror)
+
 def handle(req, startreq, handler):
+    eh = errorhandler.val
     try:
         resp = [""]
         while True:
@@ -48,6 +64,11 @@ def handle(req, startreq, handler):
                 break
             except restart as i:
                 handler = i.handle
+            except Exception as i:
+                if eh is None:
+                    raise
+                handler = wraphandler(eh, sys.exc_info())
+                eh = None
         req.commit(startreq)
         return resp
     finally:

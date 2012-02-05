@@ -43,7 +43,7 @@ class usererror(dispatch.restart):
         self.detail = detail
 
     def handle(self, req):
-        return [skelfor(req).error(self.message, self.detail)]
+        return [skelfor(req).error(self.message, self.detail).encode("utf-8")]
 
 class message(dispatch.restart):
     def __init__(self, message, detail):
@@ -52,7 +52,7 @@ class message(dispatch.restart):
         self.detail = detail
 
     def handle(self, req):
-        return [skelfor(req).message(self.message, self.detail)]
+        return [skelfor(req).message(self.message, self.detail).encode("utf-8")]
 
 class httperror(usererror):
     def __init__(self, status, message = None, detail = None):

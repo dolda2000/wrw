@@ -11,7 +11,7 @@ class stack(object):
 class environment(object):
     __slots__ = ["parent", "map"]
     def __init__(self, parent = None):
-        self.parent = None
+        self.parent = parent
         self.map = weakref.WeakKeyDictionary()
 
     def get(self, var):

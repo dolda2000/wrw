@@ -1,4 +1,4 @@
-import dispatch, proto
+import dispatch, proto, env
 
 __all__ = ["skeleton", "skelfor", "setskel", "usererror"]
 
@@ -27,10 +27,10 @@ class skeleton(object):
     def message(self, message, detail):
         return self.page(message, """<h1>%s</h1>\n<p>%s</p>\n""" % (message, detail))
 
-defskel = skeleton()
+defskel = env.var(skeleton())
 
 def getskel(req):
-    return [defskel]
+    return [defskel.val]
 def skelfor(req):
     return req.item(getskel)[0]
 def setskel(req, skel):

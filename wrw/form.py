@@ -43,7 +43,7 @@ class badmultipart(Exception):
 class formpart(object):
     def __init__(self, form):
         self.form = form
-        self.buf = ""
+        self.buf = b""
         self.eof = False
         self.head = {}
 
@@ -52,8 +52,8 @@ class formpart(object):
 
     def fillbuf(self, sz):
         req = self.form.req
-        mboundary = "\r\n--" + self.form.boundary + "\r\n"
-        lboundary = "\r\n--" + self.form.boundary + "--\r\n"
+        mboundary = b"\r\n--" + self.form.boundary + b"\r\n"
+        lboundary = b"\r\n--" + self.form.boundary + b"--\r\n"
         while not self.eof:
             p = self.form.buf.find(mboundary)
             if p >= 0:
@@ -91,7 +91,7 @@ class formpart(object):
     def readline(self, limit = -1):
         last = 0
         while True:
-            p = self.buf.find('\n', last)
+            p = self.buf.find(b'\n', last)
             if p < 0:
                 if self.eof:
                     ret = self.buf
@@ -113,12 +113,15 @@ class formpart(object):
     def __exit__(self, *excinfo):
         return False
 
-    def parsehead(self):
+    def parsehead(self, charset):
         def headline():
             ln = self.readline(256)
-            if ln[-1] != '\n':
+            if ln[-1] != ord(b'\n'):
                 raise badmultipart("Too long header line in part")
-            return ln.rstrip()
+            try:
+                return ln.decode(charset).rstrip()
+            except UnicodeError:
+                raise badmultipart("Form part header is not in assumed charset")
 
         ln = headline()
         while True:
@@ -150,29 +153,33 @@ class formpart(object):
             raise badmultipart("Form part uses unexpected transfer encoding: %r" % encoding)
 
 class multipart(object):
-    def __init__(self, req):
+    def __init__(self, req, charset):
         val, par = proto.pmimehead(req.ihead.get("Content-Type", ""))
         if req.method != "POST" or val != "multipart/form-data":
             raise badmultipart("Request is not a multipart form")
         if "boundary" not in par:
             raise badmultipart("Multipart form lacks boundary")
-        self.boundary = par["boundary"]
+        try:
+            self.boundary = par["boundary"].encode("us-ascii")
+        except UnicodeError:
+            raise badmultipart("Multipart boundary must be ASCII string")
         self.req = req
-        self.buf = "\r\n"
+        self.buf = b"\r\n"
         self.eof = False
+        self.headcs = charset
         self.lastpart = formpart(self)
         self.lastpart.close()
 
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         if not self.lastpart.eof:
             raise RuntimeError("All form parts must be read entirely")
         if self.eof:
             raise StopIteration()
         self.lastpart = formpart(self)
-        self.lastpart.parsehead()
+        self.lastpart.parsehead(self.headcs)
         return self.lastpart
 
 def formdata(req):

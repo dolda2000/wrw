@@ -6,6 +6,15 @@ def wsgiwrap(callable):
         return dispatch.handle(req.origrequest(env), startreq, callable)
     return wrapper
 
+def stringwrap(charset):
+    def dec(callable):
+        def wrapper(*args, **kwargs):
+            bk = callable(*args, **kwargs)
+            for string in bk:
+                yield string.encode(charset)
+        return wrapper
+    return dec
+
 def formparams(callable):
     def wrapper(req):
         data = form.formdata(req)

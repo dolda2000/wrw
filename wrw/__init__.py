@@ -1,5 +1,6 @@
 __all__ = ["wsgiwrap", "restart", "cookie", "formdata"]
 
+import proto
 from util import wsgiwrap, formparams, persession, sessiondata, autodirty, manudirty
 from dispatch import restart
 import cookie

@@ -63,7 +63,7 @@ def pmimehead(hstr):
             break
         p += 1
         v, p = token(p, ';')
-        pars[k] = v
+        pars[k.lower()] = v
     return val, pars
 
 def htmlq(html):

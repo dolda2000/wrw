@@ -62,6 +62,7 @@ class request(object):
 class origrequest(request):
     def __init__(self, env):
         self.env = env
+        self.method = env["REQUEST_METHOD"].upper()
         self.uriname = env["SCRIPT_NAME"]
         self.filename = env.get("SCRIPT_FILENAME")
         self.uri = env["REQUEST_URI"]
@@ -136,6 +137,7 @@ class copyrequest(request):
         self.parent = p
         self.top = p.topreq()
         self.env = p.env
+        self.method = p.method
         self.uriname = p.uriname
         self.filename = p.filename
         self.uri = p.uri

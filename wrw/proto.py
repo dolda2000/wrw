@@ -17,6 +17,55 @@ def phttpdate(dstr):
     tz = (((tz / 100) * 60) + (tz % 100)) * 60
     return time.mktime(time.strptime(dstr, "%a, %d %b %Y %H:%M:%S")) - tz - time.altzone
 
+def pmimehead(hstr):
+    def pws(p):
+        while p < len(hstr) and hstr[p].isspace():
+            p += 1
+        return p
+    def token(p, sep):
+        buf = ""
+        p = pws(p)
+        if p >= len(hstr):
+            return "", p
+        if hstr[p] == '"':
+            p += 1
+            while p < len(hstr):
+                if hstr[p] == '\\':
+                    p += 1
+                    if p < len(hstr):
+                        buf += hstr[p]
+                        p += 1
+                    else:
+                        break
+                elif hstr[p] == '"':
+                    p += 1
+                    break
+                else:
+                    buf += hstr[p]
+                    p += 1
+            return buf, pws(p)
+        else:
+            while p < len(hstr):
+                if hstr[p] in sep:
+                    break
+                buf += hstr[p]
+                p += 1
+            return buf.strip(), pws(p)
+    p = 0
+    val, p = token(p, ";")
+    pars = {}
+    while p < len(hstr):
+        if hstr[p] != ';':
+            break
+        p += 1
+        k, p = token(p, "=")
+        if k == "" or hstr[p:p + 1] != '=':
+            break
+        p += 1
+        v, p = token(p, ';')
+        pars[k.lower()] = v
+    return val, pars
+
 def htmlq(html):
     ret = ""
     for c in html:

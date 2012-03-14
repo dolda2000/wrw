@@ -62,6 +62,7 @@ class request(object):
 class origrequest(request):
     def __init__(self, env):
         self.env = env
+        self.method = env["REQUEST_METHOD"]
         self.uriname = env["SCRIPT_NAME"]
         self.filename = env.get("SCRIPT_FILENAME")
         self.uri = env["REQUEST_URI"]

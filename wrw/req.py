@@ -137,6 +137,7 @@ class copyrequest(request):
         self.parent = p
         self.top = p.topreq()
         self.env = p.env
+        self.method = p.method
         self.uriname = p.uriname
         self.filename = p.filename
         self.uri = p.uri

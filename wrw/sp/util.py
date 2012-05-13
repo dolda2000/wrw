@@ -1,4 +1,4 @@
-import cons
+from . import cons
 
 def findnsnames(el):
     names = {}
@@ -6,7 +6,7 @@ def findnsnames(el):
     def proc(el):
         if isinstance(el, cons.element):
             if el.ns not in names:
-                names[el.ns] = u"n" + unicode(nid[0])
+                names[el.ns] = "n" + str(nid[0])
                 nid[:] = [nid[0] + 1]
             for ch in el.children:
                 proc(ch)
@@ -32,12 +32,12 @@ class formatter(object):
 
     def quotewrite(self, buf):
         for ch in buf:
-            if ch == u'&':
-                self.write(u"&amp;")
-            elif ch == u'<':
-                self.write(u"&lt;")
-            elif ch == u'>':
-                self.write(u"&gt;")
+            if ch == '&':
+                self.write("&amp;")
+            elif ch == '<':
+                self.write("&lt;")
+            elif ch == '>':
+                self.write("&gt;")
             else:
                 self.write(ch)
 
@@ -45,15 +45,15 @@ class formatter(object):
         self.quotewrite(el)
 
     def attrval(self, buf):
-        qc, qt = (u"'", u"&apos;") if u'"' in buf else (u'"', u"&quot;")
+        qc, qt = ("'", "&apos;") if '"' in buf else ('"', "&quot;")
         self.write(qc)
         for ch in buf:
-            if ch == u'&':
-                self.write(u"&amp;")
-            elif ch == u'<':
-                self.write(u"&lt;")
-            elif ch == u'>':
-                self.write(u"&gt;")
+            if ch == '&':
+                self.write("&amp;")
+            elif ch == '<':
+                self.write("&lt;")
+            elif ch == '>':
+                self.write("&gt;")
             elif ch == qc:
                 self.write(qt)
             else:
@@ -62,38 +62,38 @@ class formatter(object):
 
     def attr(self, k, v):
         self.write(k)
-        self.write(u'=')
+        self.write('=')
         self.attrval(v)
 
     def shorttag(self, el, **extra):
-        self.write(u'<' + self.elname(el))
-        for k, v in el.attrs.iteritems():
-            self.write(u' ')
+        self.write('<' + self.elname(el))
+        for k, v in el.attrs.items():
+            self.write(' ')
             self.attr(k, v)
-        for k, v in extra.iteritems():
-            self.write(u' ')
+        for k, v in extra.items():
+            self.write(' ')
             self.attr(k, v)
-        self.write(u" />")
+        self.write(" />")
 
     def elname(self, el):
         ns = self.nsnames[el.ns]
         if ns is None:
             return el.name
         else:
-            return ns + u':' + el.name
+            return ns + ':' + el.name
 
     def starttag(self, el, **extra):
-        self.write(u'<' + self.elname(el))
-        for k, v in el.attrs.iteritems():
-            self.write(u' ')
+        self.write('<' + self.elname(el))
+        for k, v in el.attrs.items():
+            self.write(' ')
             self.attr(k, v)
-        for k, v in extra.iteritems():
-            self.write(u' ')
+        for k, v in extra.items():
+            self.write(' ')
             self.attr(k, v)
-        self.write(u'>')
+        self.write('>')
 
     def endtag(self, el):
-        self.write(u'</' + self.elname(el) + u'>')
+        self.write('</' + self.elname(el) + '>')
 
     def longtag(self, el):
         self.starttag(el, **extra)
@@ -116,19 +116,19 @@ class formatter(object):
             raise Exception("Unknown object in element tree: " + el)
 
     def start(self):
-        self.write(u'<?xml version="1.0" encoding="' + self.charset + u'" ?>\n')
+        self.write('<?xml version="1.0" encoding="' + self.charset + '" ?>\n')
         if self.doctype:
-            self.write(u'<!DOCTYPE %s PUBLIC "%s" "%s">\n' % (self.root.name,
-                                                              self.doctype[0],
-                                                              self.doctype[1]))
+            self.write('<!DOCTYPE %s PUBLIC "%s" "%s">\n' % (self.root.name,
+                                                             self.doctype[0],
+                                                             self.doctype[1]))
         extra = {}
-        for uri, nm in self.nsnames.iteritems():
+        for uri, nm in self.nsnames.items():
             if uri is None:
                 continue
             if nm is None:
-                extra[u"xmlns"] = uri
+                extra["xmlns"] = uri
             else:
-                extra[u"xmlns:" + nm] = uri
+                extra["xmlns:" + nm] = uri
         self.element(self.root, **extra)
 
     @classmethod
@@ -148,8 +148,9 @@ class iwriter(object):
         self.col = 0
 
     def write(self, buf):
-        for c in buf:
-            if c == '\n':
+        for i in range(len(buf)):
+            c = buf[i:i + 1]
+            if c == b'\n':
                 self.col = 0
             else:
                 self.col += 1
@@ -160,16 +161,16 @@ class iwriter(object):
         if self.atbol:
             return
         if self.col != 0:
-            self.write('\n')
+            self.write(b'\n')
         self.write(indent)
         self.atbol = True
 
 class indenter(formatter):
-    def __init__(self, indent=u"  ", *args, **kw):
+    def __init__(self, indent="  ", *args, **kw):
         super(indenter, self).__init__(*args, **kw)
         self.out = iwriter(self.out)
         self.indent = indent
-        self.curind = u""
+        self.curind = ""
 
     def simple(self, el):
         for ch in el.children:
@@ -183,18 +184,21 @@ class indenter(formatter):
         reind = False
         if not self.simple(el):
             sub = self.update(curind=self.curind + self.indent)
-            sub.out.indent(sub.curind)
+            sub.reindent()
             reind = True
         for ch in el.children:
             sub.node(ch)
         if reind:
-            self.out.indent(self.curind)
+            self.reindent()
         self.endtag(el)
 
     def element(self, el, **extra):
         super(indenter, self).element(el, **extra)
         if self.out.col > 80 and self.simple(el):
-            self.out.indent(self.curind)
+            self.reindent()
+
+    def reindent(self):
+        self.out.indent(self.curind.encode(self.charset))
 
     def start(self):
         super(indenter, self).start()

@@ -1,11 +1,11 @@
-import xml.dom.minidom, StringIO
-import cons as _cons
-import util
+import xml.dom.minidom, io
+from . import cons as _cons
+from . import util
 dom = xml.dom.minidom.getDOMImplementation()
 
-ns = u"http://www.w3.org/1999/xhtml"
-doctype = u"-//W3C//DTD XHTML 1.1//EN"
-dtd = u"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"
+ns = "http://www.w3.org/1999/xhtml"
+doctype = "-//W3C//DTD XHTML 1.1//EN"
+dtd = "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"
 
 class htmlelement(_cons.element):
     def __todoc__(self):
@@ -22,7 +22,7 @@ def head(title=None, css=None):
     head = h.head
     if title:
         head(h.title(title))
-    if isinstance(css, str) or isinstance(css, unicode):
+    if isinstance(css, str) or isinstance(css, bytes):
         head(h.link(rel="stylesheet", type="text/css", href=css))
     elif css:
         for ss in css:
@@ -30,7 +30,7 @@ def head(title=None, css=None):
     return head
 
 class htmlformatter(util.formatter):
-    allowshort = set([u"br", u"hr", u"img", u"input"])
+    allowshort = set(["br", "hr", "img", "input"])
     def element(self, el, **extra):
         if el.name in self.allowshort:
             super(htmlformatter, self).element(el, **extra)
@@ -43,7 +43,7 @@ class htmlindenter(util.indenter, htmlformatter):
 def forreq(req, tree):
     # XXX: Use proper Content-Type for clients accepting it.
     req.ohead["Content-Type"] = "text/html; charset=utf-8"
-    buf = StringIO.StringIO()
+    buf = io.StringIO()
     htmlindenter.output(buf, tree, doctype=(doctype, dtd), charset="utf-8")
     return [buf.getvalue()]
 

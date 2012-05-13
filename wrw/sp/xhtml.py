@@ -43,7 +43,7 @@ class htmlindenter(util.indenter, htmlformatter):
 def forreq(req, tree):
     # XXX: Use proper Content-Type for clients accepting it.
     req.ohead["Content-Type"] = "text/html; charset=utf-8"
-    buf = io.StringIO()
+    buf = io.BytesIO()
     htmlindenter.output(buf, tree, doctype=(doctype, dtd), charset="utf-8")
     return [buf.getvalue()]
 

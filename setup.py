@@ -7,6 +7,6 @@ setup(name = "wrw",
       description = "Simple WSGI request wrapper library",
       author = "Fredrik Tolf",
       author_email = "fredrik@dolda2000.com",
-      packages = ["wrw"],
+      packages = ["wrw", "wrw.sp"],
       package_data = {"wrw": ["makolib/*.mako"]},
       license = "GPL-3")

@@ -183,18 +183,21 @@ class indenter(formatter):
         reind = False
         if not self.simple(el):
             sub = self.update(curind=self.curind + self.indent)
-            sub.out.indent(sub.curind)
+            sub.reindent()
             reind = True
         for ch in el.children:
             sub.node(ch)
         if reind:
-            self.out.indent(self.curind)
+            self.reindent()
         self.endtag(el)
 
     def element(self, el, **extra):
         super(indenter, self).element(el, **extra)
         if self.out.col > 80 and self.simple(el):
-            self.out.indent(self.curind)
+            self.reindent()
+
+    def reindent(self):
+        self.out.indent(self.curind.encode(self.charset))
 
     def start(self):
         super(indenter, self).start()

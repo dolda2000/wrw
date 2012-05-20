@@ -44,6 +44,9 @@ class formatter(object):
     def text(self, el):
         self.quotewrite(el)
 
+    def rawcode(self, el):
+        self.write(el)
+
     def attrval(self, buf):
         qc, qt = (u"'", u"&apos;") if u'"' in buf else (u'"', u"&quot;")
         self.write(qc)
@@ -112,6 +115,8 @@ class formatter(object):
             self.element(el)
         elif isinstance(el, cons.text):
             self.text(el)
+        elif isinstance(el, cons.raw):
+            self.rawcode(el)
         else:
             raise Exception("Unknown object in element tree: " + el)
 

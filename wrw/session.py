@@ -19,7 +19,7 @@ class session(object):
     def __init__(self, expire = 86400 * 7):
         self.id = hexencode(gennonce(16))
         self.dict = {}
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
         self.ctime = self.atime = self.mtime = int(time.time())
         self.expire = expire
         self.dctl = set()

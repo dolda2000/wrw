@@ -44,7 +44,7 @@ class sessiondata(object):
             except KeyError:
                 if not create:
                     return None
-                ret = cls(req)
+                ret = cls(req, sess)
                 sess[cls] = ret
                 return ret
 

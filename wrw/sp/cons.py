@@ -9,6 +9,10 @@ class text(node, str):
     def __todom__(self, doc):
         return doc.createTextNode(self)
 
+class raw(node, str):
+    def __todom__(self, doc):
+        raise Exception("Cannot convert raw code to DOM objects")
+
 class element(node):
     def __init__(self, ns, name, ctx):
         self.ns = ns

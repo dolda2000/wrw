@@ -174,7 +174,6 @@ class specdirty(sessiondata):
         ss = specslot.slist(self)
         for i, nm in enumerate(type(self).__sslots_a__):
             bound, val = st.pop(nm, (False, None))
-            print i, nm, bound, val
             if not bound:
                 ss[i] = specslot.unbound
             else:

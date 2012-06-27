@@ -1,8 +1,12 @@
 statusinfo = {
-    400: ("Bad Request", "Your issued HTTP request is invalid."),
-    403: ("Forbidden", "You are not authorized to view the requested resource."),
+    400: ("Bad Request", "Invalid HTTP request."),
+    401: ("Unauthorized", "Authentication must be provided for the requested resource."),
+    403: ("Forbidden", "You are not authorized to request the requested resource."),
     404: ("Not Found", "The requested resource was not found."),
-    500: ("Server Error", "An internal error occurred.")
+    405: ("Method Not Allowed", "The request method is not recognized or permitted by the requested resource."),
+    500: ("Server Error", "An internal error occurred."),
+    501: ("Not Implemented", "The requested functionality has not been implemented."),
+    503: ("Service Unavailable", "Service is being denied at this time."),
     }
 
 def httpdate(ts):

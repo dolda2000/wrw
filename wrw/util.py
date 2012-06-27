@@ -98,3 +98,91 @@ class manudirty(object):
 
     def dirty(self):
         self.__dirty = True
+
+class specslot(object):
+    __slots__ = ["nm", "idx", "dirty"]
+    unbound = object()
+    
+    def __init__(self, nm, idx, dirty):
+        self.nm = nm
+        self.idx = idx
+        self.dirty = dirty
+
+    @staticmethod
+    def slist(ins):
+        # Avoid calling __getattribute__
+        return specdirty.__sslots__.__get__(ins, type(ins))
+
+    def __get__(self, ins, cls):
+        val = self.slist(ins)[self.idx]
+        if val is specslot.unbound:
+            raise AttributeError("specslot %r is unbound" % self.nm)
+        return val
+
+    def __set__(self, ins, val):
+        self.slist(ins)[self.idx] = val
+        if self.dirty:
+            ins.dirty()
+
+    def __delete__(self, ins):
+        self.slist(ins)[self.idx] = specslot.unbound
+        ins.dirty()
+
+class specclass(type):
+    def __init__(self, name, bases, tdict):
+        super().__init__(name, bases, tdict)
+        sslots = set()
+        dslots = set()
+        for cls in self.__mro__:
+            css = cls.__dict__.get("__saveslots__", ())
+            sslots.update(css)
+            dslots.update(cls.__dict__.get("__dirtyslots__", css))
+        self.__sslots_l__ = list(sslots)
+        self.__sslots_a__ = list(sslots | dslots)
+        for i, slot in enumerate(self.__sslots_a__):
+            setattr(self, slot, specslot(slot, i, slot in dslots))
+
+class specdirty(sessiondata, metaclass=specclass):
+    __slots__ = ["session", "__sslots__", "_is_dirty"]
+    
+    def __specinit__(self):
+        pass
+
+    @staticmethod
+    def __new__(cls, req, sess):
+        self = super().__new__(cls)
+        self.session = sess
+        self.__sslots__ = [specslot.unbound] * len(cls.__sslots_a__)
+        self.__specinit__()
+        self._is_dirty = False
+        return self
+
+    def __getnewargs__(self):
+        return (None, self.session)
+
+    def dirty(self):
+        self._is_dirty = True
+
+    def sessfrozen(self):
+        self._is_dirty = False
+
+    def sessdirty(self):
+        return self._is_dirty
+
+    def __getstate__(self):
+        ret = {}
+        for nm, val in zip(type(self).__sslots_a__, specslot.slist(self)):
+            if val is specslot.unbound:
+                ret[nm] = False, None
+            else:
+                ret[nm] = True, val
+        return ret
+
+    def __setstate__(self, st):
+        ss = specslot.slist(self)
+        for i, nm in enumerate(type(self).__sslots_a__):
+            bound, val = st.pop(nm, (False, None))
+            if not bound:
+                ss[i] = specslot.unbound
+            else:
+                ss[i] = val

@@ -157,15 +157,17 @@ class db(object):
                 else:
                     raise Exception("Illegal session entry: " + repr(entry[1]))
 
-    def fetch(self, req):
-        now = int(time.time())
-        sessid = cookie.get(req, self.cookiename)
-        new = False
+    def checkclean(self):
         with self.lock:
             if self.cthread is None:
                 self.cthread = threading.Thread(target = self.cleanloop)
                 self.cthread.setDaemon(True)
                 self.cthread.start()
+
+    def fetch(self, req):
+        now = int(time.time())
+        sessid = cookie.get(req, self.cookiename)
+        new = False
         try:
             if sessid is None:
                 raise KeyError()
@@ -184,6 +186,7 @@ class db(object):
                     self.freeze(sess)
                 except:
                     pass
+                self.checkclean()
         req.oncommit(ckfreeze)
         return sess
 

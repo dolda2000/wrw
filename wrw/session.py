@@ -70,6 +70,9 @@ class session(object):
             self.__dict__[k] = v
         # The proper lock is set by the thawer
 
+    def __repr__(self):
+        return "<session %s>" % self.id
+
 class db(object):
     def __init__(self, backdb = None, cookiename = "wrwsess", path = "/"):
         self.live = {}

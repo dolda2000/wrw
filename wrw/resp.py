@@ -5,17 +5,17 @@ h = xhtml.cons()
 __all__ = ["skeleton", "skelfor", "setskel", "usererror"]
 
 class skeleton(object):
-    def page(self, title, *content):
-        return h.html(self.head(title), h.body(*content))
+    def page(self, req, title, *content):
+        return xhtml.forreq(req, h.html(self.head(req, title), h.body(*content)))
 
-    def head(self, title):
+    def head(self, req, title):
         return xhtml.head(title=title)
 
-    def error(self, message, *detail):
-        return self.page(message, h.h1(message), h.p(*detail))
+    def error(self, req, message, *detail):
+        return self.page(req, message, h.h1(message), h.p(*detail))
 
-    def message(self, message, *detail):
-        return self.page(message, h.h1(message), h.p(*detail))
+    def message(self, req, message, *detail):
+        return self.page(req, message, h.h1(message), h.p(*detail))
 
 defskel = env.var(skeleton())
 
@@ -33,7 +33,7 @@ class usererror(dispatch.restart):
         self.detail = detail
 
     def handle(self, req):
-        return xhtml.forreq(req, skelfor(req).error(self.message, *self.detail))
+        return skelfor(req).error(req, self.message, *self.detail)
 
 class message(dispatch.restart):
     def __init__(self, msg, *detail):
@@ -42,7 +42,7 @@ class message(dispatch.restart):
         self.detail = detail
 
     def handle(self, req):
-        return xhtml.forreq(req, skelfor(req).error(self.message, *self.detail))
+        return skelfor(req).error(req, self.message, *self.detail)
 
 class httperror(usererror):
     def __init__(self, status, message = None, detail = None):

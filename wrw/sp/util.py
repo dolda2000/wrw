@@ -142,7 +142,7 @@ class formatter(object):
 
     @classmethod
     def fragment(cls, out, el, *args, **kw):
-        cls(out=out, root=el, *args, **kw).element(el)
+        cls(out=out, root=el, *args, **kw).node(el)
 
     def update(self, **ch):
         ret = type(self).__new__(type(self))

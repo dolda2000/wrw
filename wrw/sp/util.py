@@ -140,6 +140,10 @@ class formatter(object):
     def output(cls, out, el, *args, **kw):
         cls(out=out, root=el, *args, **kw).start()
 
+    @classmethod
+    def fragment(cls, out, el, *args, **kw):
+        cls(out=out, root=el, *args, **kw).element(el)
+
     def update(self, **ch):
         ret = type(self).__new__(type(self))
         ret.__dict__.update(self.__dict__)

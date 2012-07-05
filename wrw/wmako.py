@@ -1,6 +1,6 @@
 import os, threading
 from mako import template, lookup, filters
-import util, form, session
+import util, form, session, env
 
 # It seems Mako isn't thread-safe.
 makolock = threading.Lock()
@@ -25,13 +25,19 @@ defargs = {"output_encoding": "utf-8",
            "default_filters": ["decode.utf8"],
            "module_directory": cachedir,
     }
-lib = liblookup(directories = libdirs, **defargs)
+
+def makelib(init=liblookup, directories=[], **kwargs):
+    ad = dict(defargs)
+    ad.update(kwargs)
+    return init(directories = libdirs + directories, **ad)
+
+lib = env.var(makelib())
 
 if not os.path.exists(cachedir):
     os.mkdir(cachedir)
 def handle(req, filename, **kw):
     with makolock:
-        tt = template.Template(filename = filename, lookup = lib, **defargs)
+        tt = template.Template(filename = filename, lookup = lib.val, **defargs)
     req.ohead["Content-Type"] = "text/html; charset=utf-8"
     return [tt.render(request = req, **kw)]
 

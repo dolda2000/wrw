@@ -179,7 +179,7 @@ class db(object):
         def ckfreeze(req):
             if sess.dirty():
                 if new:
-                    cookie.add(req, self.cookiename, sess.id, self.path)
+                    cookie.add(req, self.cookiename, sess.id, path=self.path)
                     with self.lock:
                         self.live[sess.id] = [sess.lock, sess]
                 try:

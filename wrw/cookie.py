@@ -27,9 +27,10 @@ class cookiedict(object):
             return default
         return self.bk[name].value
 
-    def add(self, name, value, path = None):
+    def add(self, name, value, **kw):
         self.codec[name] = value
-        if path is not None: self.codec[name]["path"] = path
+        for key, value in kw.items():
+            self.codec[name][key] = value
 
     def __setitem__(self, name, value):
         self.add(name, value)
@@ -40,5 +41,5 @@ def cookies(req):
 def get(req, name, default = None):
     return cookies(req).get(name, default)
 
-def add(req, name, value, path = None):
-    cookies(req).add(name, value, path)
+def add(req, name, value, **kw):
+    cookies(req).add(name, value, **kw)

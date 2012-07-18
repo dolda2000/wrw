@@ -164,6 +164,12 @@ class db(object):
                 self.cthread.setDaemon(True)
                 self.cthread.start()
 
+    def mksession(self, req):
+        return session(threading.RLock())
+
+    def mkcookie(self, req, sess):
+        cookie.add(req, self.cookiename, sess.id, path=self.path)
+
     def fetch(self, req):
         now = int(time.time())
         sessid = cookie.get(req, self.cookiename)
@@ -173,13 +179,13 @@ class db(object):
                 raise KeyError()
             sess = self._fetch(sessid)
         except KeyError:
-            sess = session(threading.RLock())
+            sess = self.mksession(req)
             new = True
 
         def ckfreeze(req):
             if sess.dirty():
                 if new:
-                    cookie.add(req, self.cookiename, sess.id, self.path)
+                    self.mkcookie(req, sess)
                     with self.lock:
                         self.live[sess.id] = [sess.lock, sess]
                 try:

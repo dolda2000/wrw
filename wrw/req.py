@@ -70,6 +70,7 @@ class origrequest(request):
         self.query = env["QUERY_STRING"]
         self.remoteaddr = env["REMOTE_ADDR"]
         self.serverport = env["SERVER_PORT"]
+        self.servername = env["SERVER_NAME"]
         self.https = "HTTPS" in env
         self.ihead = headdict()
         self.ohead = headdict()

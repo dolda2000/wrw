@@ -156,3 +156,10 @@ def parstring(pars = {}, **augment):
         if buf != "": buf += "&"
         buf += urlq(key) + "=" + urlq(str(augment[key]))
     return buf
+
+def parurl(url, pars = {}, **augment):
+    qs = parstring(pars, **augment)
+    if qs != "":
+        return url + "?" + qs
+    else:
+        return url

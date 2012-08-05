@@ -1,4 +1,5 @@
-import Cookie
+import Cookie, time
+import proto
 
 __all__ = ["cookies", "get", "add"]
 
@@ -43,3 +44,5 @@ def get(req, name, default = None):
 
 def add(req, name, value, **kw):
     cookies(req).add(name, value, **kw)
+
+cdate = proto.httpdate

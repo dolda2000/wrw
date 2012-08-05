@@ -113,7 +113,7 @@ def parseurl(url):
         local = local[:q]
     return proto, host, local, query
 
-def consurl(proto, host, local, query = ""):
+def consurl(proto, host, local, query=""):
     if len(local) < 1 and local[0] != '/':
         raise urlerror("Local part of URL must begin with a slash")
     ret = "%s://%s%s" % (proto, host, local)
@@ -142,7 +142,7 @@ def requrl(req):
         raise Exception("Malformed local part when reconstructing URL")
     return "%s://%s%s" % (proto, host, req.uri)
 
-def parstring(pars = {}, **augment):
+def parstring(pars={}, **augment):
     buf = ""
     for key in pars:
         if key in augment:
@@ -157,7 +157,7 @@ def parstring(pars = {}, **augment):
         buf += urlq(key) + "=" + urlq(str(augment[key]))
     return buf
 
-def parurl(url, pars = {}, **augment):
+def parurl(url, pars={}, **augment):
     qs = parstring(pars, **augment)
     if qs != "":
         return url + "?" + qs

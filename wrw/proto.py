@@ -1,3 +1,5 @@
+import time
+
 statusinfo = {
     400: ("Bad Request", "Invalid HTTP request."),
     401: ("Unauthorized", "Authentication must be provided for the requested resource."),

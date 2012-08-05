@@ -168,7 +168,9 @@ class db(object):
         return session(threading.RLock())
 
     def mkcookie(self, req, sess):
-        cookie.add(req, self.cookiename, sess.id, path=self.path)
+        cookie.add(req, self.cookiename, sess.id,
+                   path=self.path,
+                   expires=cookie.cdate(time.time() + sess.expire))
 
     def fetch(self, req):
         now = int(time.time())

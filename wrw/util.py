@@ -13,9 +13,9 @@ def formparams(callable):
         spec = inspect.getargspec(callable)
         args = dict(data.items())
         args["req"] = req
-        if not spec.keywords:
+        if not spec[2]:
             for arg in list(args):
-                if arg not in spec.args:
+                if arg not in spec[0]:
                     del args[arg]
         return callable(**args)
     return wrapper

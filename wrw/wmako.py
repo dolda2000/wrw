@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import os, threading
 from mako import template, lookup, filters
 import util, form, session, env

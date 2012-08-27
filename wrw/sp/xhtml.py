@@ -30,7 +30,7 @@ def head(title=None, css=None):
     return head
 
 class htmlformatter(util.formatter):
-    allowshort = set(["br", "hr", "img", "input"])
+    allowshort = set(["br", "hr", "img", "input", "meta", "link"])
     def element(self, el, **extra):
         if el.name in self.allowshort:
             super(htmlformatter, self).element(el, **extra)

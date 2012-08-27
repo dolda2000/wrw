@@ -111,6 +111,7 @@ class formpart(object):
         return self
 
     def __exit__(self, *excinfo):
+        self.close()
         return False
 
     def parsehead(self):

@@ -73,6 +73,10 @@ class origrequest(request):
         self.servername = env["SERVER_NAME"]
         self.https = "HTTPS" in env
         self.ihead = headdict()
+        if "CONTENT_TYPE" in env:
+            self.ihead["Content-Type"] = env["CONTENT_TYPE"]
+        if "CONTENT_LENGTH" in env:
+            self.ihead["Content-Length"] = env["CONTENT_LENGTH"]
         self.ohead = headdict()
         for k, v in env.items():
             if k[:5] == "HTTP_":

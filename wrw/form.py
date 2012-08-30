@@ -6,7 +6,7 @@ __all__ = ["formdata"]
 class formwrap(object):
     def __init__(self, req):
         if req.ihead.get("Content-Type") == "application/x-www-form-urlencoded":
-            self.cf = cgi.parse(environ = req.env, fp = req.env["wsgi.input"])
+            self.cf = cgi.parse(environ = req.env, fp = req.input)
         else:
             self.cf = cgi.parse(environ = req.env)
 
@@ -73,7 +73,7 @@ class formpart(object):
             if sz >= 0 and len(self.buf) >= sz:
                 break
             while len(self.form.buf) <= len(lboundary):
-                ret = req.env["wsgi.input"].read(8192)
+                ret = req.input.read(8192)
                 if ret == "":
                     raise badmultipart("Missing last multipart boundary")
                 self.form.buf += ret

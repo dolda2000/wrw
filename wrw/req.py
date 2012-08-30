@@ -1,3 +1,5 @@
+import StringIO
+
 __all__ = ["request"]
 
 class headdict(object):
@@ -49,6 +51,71 @@ def fixcase(str):
         i += 1
     return str
 
+class limitreader(object):
+    def __init__(self, back, limit):
+        self.bk = back
+        self.limit = limit
+        self.rb = 0
+        self.buf = ""
+
+    def close(self):
+        pass
+
+    def read(self, size=-1):
+        ra = self.limit - self.rb
+        if size >= 0:
+            ra = min(ra, size)
+        while len(self.buf) < ra:
+            ret = self.bk.read(ra - len(self.buf))
+            if ret == "":
+                raise IOError("Unexpected EOF")
+            self.buf += ret
+            self.rb += len(ret)
+        ret = self.buf[:ra]
+        self.buf = self.buf[ra:]
+        return ret
+
+    def readline(self, size=-1):
+        off = 0
+        while True:
+            p = self.buf.find('\n', off)
+            if p >= 0:
+                ret = self.buf[:p + 1]
+                self.buf = self.buf[p + 1:]
+                return ret
+            off = len(self.buf)
+            if size >= 0 and len(self.buf) >= size:
+                ret = self.buf[:size]
+                self.buf = self.buf[size:]
+                return ret
+            if self.rb == self.limit:
+                ret = self.buf
+                self.buf = ""
+                return ret
+            ra = self.limit - self.rb
+            if size >= 0:
+                ra = min(ra, size)
+            ra = min(ra, 1024)
+            ret = self.bk.read(ra)
+            if ret == "":
+                raise IOError("Unpexpected EOF")
+            self.buf += ret
+            self.rb += len(ret)
+
+    def readlines(self, hint=None):
+        return list(self)
+
+    def __iter__(rd):
+        class lineiter(object):
+            def __iter__(self):
+                return self
+            def next(self):
+                ret = rd.readline()
+                if ret == "":
+                    raise StopIteration()
+                return ret
+        return lineiter()
+
 class request(object):
     def copy(self):
         return copyrequest(self)
@@ -73,10 +140,15 @@ class origrequest(request):
         self.servername = env["SERVER_NAME"]
         self.https = "HTTPS" in env
         self.ihead = headdict()
+        self.input = None
         if "CONTENT_TYPE" in env:
             self.ihead["Content-Type"] = env["CONTENT_TYPE"]
         if "CONTENT_LENGTH" in env:
-            self.ihead["Content-Length"] = env["CONTENT_LENGTH"]
+            clen = self.ihead["Content-Length"] = env["CONTENT_LENGTH"]
+            if clen.isdigit():
+                self.input = limitreader(env["wsgi.input"], int(clen))
+        if self.input is None:
+            self.input = StringIO.StringIO("")
         self.ohead = headdict()
         for k, v in env.items():
             if k[:5] == "HTTP_":

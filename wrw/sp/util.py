@@ -98,7 +98,7 @@ class formatter(object):
     def endtag(self, el):
         self.write(u'</' + self.elname(el) + u'>')
 
-    def longtag(self, el):
+    def longtag(self, el, **extra):
         self.starttag(el, **extra)
         for ch in el.children:
             self.node(ch)

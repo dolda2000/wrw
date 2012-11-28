@@ -133,16 +133,26 @@ def appendurl(url, other):
         p = local.rfind('/')
         return consurl(proto, host, local[:p + 1] + other)
 
-def requrl(req):
+def siteurl(req):
     host = req.ihead.get("Host", None)
     if host is None:
         raise Exception("Could not reconstruct URL because no Host header was sent")
     proto = "http"
     if req.https:
         proto = "https"
+    return "%s://%s/" % (proto, host)
+
+def scripturl(req):
+    s = siteurl(req)
+    if req.uriname[0] != '/':
+        raise Exception("Malformed local part when reconstructing URL")
+    return siteurl(req) + req.uriname[1:]
+
+def requrl(req):
+    s = siteurl(req)
     if req.uri[0] != '/':
         raise Exception("Malformed local part when reconstructing URL")
-    return "%s://%s%s" % (proto, host, req.uri)
+    return siteurl(req) + req.uri[1:]
 
 def parstring(pars={}, **augment):
     buf = ""

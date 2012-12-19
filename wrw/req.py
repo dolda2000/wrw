@@ -140,15 +140,20 @@ class origrequest(request):
         self.servername = env["SERVER_NAME"]
         self.https = "HTTPS" in env
         self.ihead = headdict()
-        self.input = None
         if "CONTENT_TYPE" in env:
             self.ihead["Content-Type"] = env["CONTENT_TYPE"]
-        if "CONTENT_LENGTH" in env:
-            clen = self.ihead["Content-Length"] = env["CONTENT_LENGTH"]
-            if clen.isdigit():
-                self.input = limitreader(env["wsgi.input"], int(clen))
-        if self.input is None:
-            self.input = io.BytesIO(b"")
+            if "CONTENT_LENGTH" in env:
+                clen = self.ihead["Content-Length"] = env["CONTENT_LENGTH"]
+                if clen.isdigit():
+                    self.input = limitreader(env["wsgi.input"], int(clen))
+                else:
+                    # XXX: What to do?
+                    self.input = io.BytesIO(b"")
+            else:
+                # Assume input is chunked and read until ordinary EOF.
+                self.input = env["wsgi.input"]
+        else:
+            self.input = None
         self.ohead = headdict()
         for k, v in env.items():
             if k[:5] == "HTTP_":

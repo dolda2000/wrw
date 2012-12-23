@@ -1,9 +1,7 @@
 import xml.dom.minidom
 
 class node(object):
-    def __str__(self):
-        doc = xml.dom.minidom.Document()
-        return self.__todom__(doc).toxml()
+    pass
 
 class text(node, unicode):
     def __todom__(self, doc):
@@ -35,6 +33,10 @@ class element(node):
         for child in self.children:
             el.appendChild(child.__todom__(doc))
         return el
+
+    def __str__(self):
+        doc = xml.dom.minidom.Document()
+        return self.__todom__(doc).toxml()
 
 class context(object):
     def __init__(self):

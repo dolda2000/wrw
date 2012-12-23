@@ -1,7 +1,7 @@
 from __future__ import with_statement
 import os, threading
 from mako import template, lookup, filters
-import util, form, session, env
+import util, form, session, env, resp
 
 # It seems Mako isn't thread-safe.
 makolock = threading.Lock()
@@ -44,6 +44,8 @@ def handle(req, filename, **kw):
 
 @util.wsgiwrap
 def application(req):
+    if req.method not in ["GET", "HEAD"]:
+        raise resp.httperror(405)
     return handle(req, req.filename,
                   form = form.formdata(req),
                   session = session.get(req))

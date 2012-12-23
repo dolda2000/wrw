@@ -23,9 +23,9 @@ class element(node):
 
     def __call__(self, *children, **attrs):
         for child in children:
-            self.children.append(self.ctx.nodefrom(child))
+            self.ctx.addchild(self, child)
         for k, v in attrs.items():
-            self.attrs[str(k)] = str(v)
+            self.ctx.addattr(self, k, v)
         return self
 
     def __todom__(self, doc):
@@ -52,6 +52,12 @@ class context(object):
         if type(ob) in self.nodeconv:
             return self.nodeconv[type(ob)](ob)
         raise Exception("No node conversion known for %s objects" % str(type(ob)))
+
+    def addchild(self, node, child):
+        node.children.append(self.nodefrom(child))
+
+    def addattr(self, node, k, v):
+        node.attrs[str(k)] = str(v)
 
 class constructor(object):
     def __init__(self, ns, elcls = element, ctx=None):

@@ -14,7 +14,15 @@ class htmlelement(_cons.element):
         doc.appendChild(self.__todom__(doc))
         return doc
 
+class xhtmlcontext(_cons.context):
+    attrmap = {"klass": "class"}
+
+    def addattr(self, node, k, v):
+        k = str(k)
+        node.attrs[self.attrmap.get(k, k)] = str(v)
+
 def cons(ctx=None):
+    if ctx is None: ctx = xhtmlcontext()
     return _cons.constructor(ns, htmlelement, ctx)
 
 def head(title=None, css=None):

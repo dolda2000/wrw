@@ -3,7 +3,7 @@ import req, dispatch, session, form
 
 def wsgiwrap(callable):
     def wrapper(env, startreq):
-        return dispatch.handle(req.origrequest(env), startreq, callable)
+        return dispatch.handleenv(env, startreq, callable)
     return wrapper
 
 def formparams(callable):

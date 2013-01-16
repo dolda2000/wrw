@@ -1,5 +1,5 @@
 import sys, traceback
-import env
+import env, req, proto
 
 __all__ = ["restart"]
 
@@ -73,3 +73,9 @@ def handle(req, startreq, handler):
         return resp
     finally:
         req.cleanup()
+
+def handleenv(env, startreq, handler):
+    if not "HTTP_HOST" in env:
+        return proto.simpleerror(env, startreq, 400, "Bad Request", "Request must include Host header.")
+    r = req.origrequest(env)
+    return handle(r, startreq, handler)

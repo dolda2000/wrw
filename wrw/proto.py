@@ -98,6 +98,7 @@ def simpleerror(env, startreq, code, title, msg):
 </body>
 </html>
 """ % (title, title, htmlq(msg))
+    buf = buf.encode("us-ascii")
     startreq("%i %s" % (code, title), [("Content-Type", "text/html"), ("Content-Length", str(len(buf)))])
     return [buf]
 

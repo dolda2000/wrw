@@ -43,6 +43,37 @@ def persession(data = None):
         return wrapper
     return dec
 
+class preiter(object):
+    __slots__ = ["bk", "bki", "_next"]
+    end = object()
+    def __init__(self, real):
+        self.bk = real
+        self.bki = iter(real)
+        self._next = None
+        self.__next__()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self._next is self.end:
+            raise StopIteration()
+        ret = self._next
+        try:
+            self._next = next(self.bki)
+        except StopIteration:
+            self._next = self.end
+        return ret
+
+    def close(self):
+        if hasattr(self.bk, "close"):
+            self.bk.close()
+
+def pregen(callable):
+    def wrapper(*args, **kwargs):
+        return preiter(callable(*args, **kwargs))
+    return wrapper
+
 class sessiondata(object):
     @classmethod
     def get(cls, req, create = True):

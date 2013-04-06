@@ -1,5 +1,5 @@
 import inspect
-import req, dispatch, session, form
+import req, dispatch, session, form, resp
 
 def wsgiwrap(callable):
     def wrapper(env, startreq):
@@ -16,6 +16,9 @@ def formparams(callable):
             for arg in list(args):
                 if arg not in spec.args:
                     del args[arg]
+        for i in xrange(len(spec.args) - len(spec.defaults)):
+            if spec.args[i] not in args:
+                raise resp.httperror(400, "Missing parameter", ("The query parameter `", resp.h.code(spec.args[i]), "' is required but not supplied."))
         return callable(**args)
     return wrapper
 

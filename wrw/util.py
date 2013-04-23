@@ -22,6 +22,27 @@ def formparams(callable):
         return callable(**args)
     return wrapper
 
+def funplex(*funs, **nfuns):
+    dir = {}
+    dir.update(((fun.__name__, fun) for fun in funs))
+    dir.update(nfuns)
+    def handler(req):
+        if req.pathinfo == "":
+            raise resp.redirect(req.uriname + "/")
+        if req.pathinfo[:1] != "/":
+            raise resp.notfound()
+        p = req.pathinfo[1:]
+        if p == "":
+            p = "__index__"
+            bi = 1
+        else:
+            p = p.partition("/")[0]
+            bi = len(p) + 1
+        if p in dir:
+            return dir[p](req.shift(bi))
+        raise resp.notfound()
+    return handler
+
 def persession(data = None):
     def dec(callable):
         def wrapper(req):

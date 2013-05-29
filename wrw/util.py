@@ -1,5 +1,5 @@
-import inspect
-import req, dispatch, session, form, resp
+import inspect, math
+import req, dispatch, session, form, resp, proto
 
 def wsgiwrap(callable):
     def wrapper(env, startreq):
@@ -233,3 +233,10 @@ class specdirty(sessiondata):
                 ss[i] = specslot.unbound
             else:
                 ss[i] = val
+
+def datecheck(req, mtime):
+    if "If-Modified-Since" in req.ihead:
+        rtime = proto.phttpdate(req.ihead["If-Modified-Since"])
+        if rtime >= math.floor(mtime):
+            raise resp.unmodified()
+    req.ohead["Last-Modified"] = proto.httpdate(mtime)

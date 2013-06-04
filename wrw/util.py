@@ -25,8 +25,12 @@ def formparams(callable):
     return wrapper
 
 def funplex(*funs, **nfuns):
+    def unwrap(fun):
+        while hasattr(fun, "__wrapped__"):
+            fun = fun.__wrapped__
+        return fun
     dir = {}
-    dir.update(((fun.__name__, fun) for fun in funs))
+    dir.update(((unwrap(fun).__name__, fun) for fun in funs))
     dir.update(nfuns)
     def handler(req):
         if req.pathinfo == "":

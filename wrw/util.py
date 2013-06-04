@@ -24,15 +24,19 @@ def formparams(callable):
     wrapper.__wrapped__ = callable
     return wrapper
 
-def funplex(*funs, **nfuns):
+class funplex(object):
+    def __init__(self, *funs, **nfuns):
+        self.dir = {}
+        self.dir.update(((self.unwrap(fun).__name__, fun) for fun in funs))
+        self.dir.update(nfuns)
+
+    @staticmethod
     def unwrap(fun):
         while hasattr(fun, "__wrapped__"):
             fun = fun.__wrapped__
         return fun
-    dir = {}
-    dir.update(((unwrap(fun).__name__, fun) for fun in funs))
-    dir.update(nfuns)
-    def handler(req):
+
+    def __call__(self, req):
         if req.pathinfo == "":
             raise resp.redirect(req.uriname + "/")
         if req.pathinfo[:1] != "/":
@@ -44,10 +48,19 @@ def funplex(*funs, **nfuns):
         else:
             p = p.partition("/")[0]
             bi = len(p) + 1
-        if p in dir:
-            return dir[p](req.shift(bi))
+        if p in self.dir:
+            return self.dir[p](req.shift(bi))
         raise resp.notfound()
-    return handler
+
+    def add(self, fun):
+        self.dir[self.unwrap(fun).__name__] = fun
+        return fun
+
+    def name(self, name):
+        def dec(fun):
+            self.dir[name] = fun
+            return fun
+        return dec
 
 def persession(data = None):
     def dec(callable):

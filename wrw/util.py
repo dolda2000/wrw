@@ -1,9 +1,10 @@
-import inspect
-from . import req, dispatch, session, form, resp
+import inspect, math
+from . import req, dispatch, session, form, resp, proto
 
 def wsgiwrap(callable):
     def wrapper(env, startreq):
         return dispatch.handleenv(env, startreq, callable)
+    wrapper.__wrapped__ = callable
     return wrapper
 
 def stringwrap(charset):
@@ -29,11 +30,16 @@ def formparams(callable):
             if spec.args[i] not in args:
                 raise resp.httperror(400, "Missing parameter", ("The query parameter `", resp.h.code(spec.args[i]), "' is required but not supplied."))
         return callable(**args)
+    wrapper.__wrapped__ = callable
     return wrapper
 
 def funplex(*funs, **nfuns):
+    def unwrap(fun):
+        while hasattr(fun, "__wrapped__"):
+            fun = fun.__wrapped__
+        return fun
     dir = {}
-    dir.update(((fun.__name__, fun) for fun in funs))
+    dir.update(((unwrap(fun).__name__, fun) for fun in funs))
     dir.update(nfuns)
     def handler(req):
         if req.pathinfo == "":
@@ -64,6 +70,7 @@ def persession(data = None):
                         sess[data] = data()
                     sess[callable] = callable(data)
             return sess[callable].handle(req)
+        wrapper.__wrapped__ = callable
         return wrapper
     return dec
 
@@ -96,6 +103,7 @@ class preiter(object):
 def pregen(callable):
     def wrapper(*args, **kwargs):
         return preiter(callable(*args, **kwargs))
+    wrapper.__wrapped__ = callable
     return wrapper
 
 class sessiondata(object):
@@ -241,3 +249,10 @@ class specdirty(sessiondata, metaclass=specclass):
                 ss[i] = specslot.unbound
             else:
                 ss[i] = val
+
+def datecheck(req, mtime):
+    if "If-Modified-Since" in req.ihead:
+        rtime = proto.phttpdate(req.ihead["If-Modified-Since"])
+        if rtime >= math.floor(mtime):
+            raise resp.unmodified()
+    req.ohead["Last-Modified"] = proto.httpdate(mtime)

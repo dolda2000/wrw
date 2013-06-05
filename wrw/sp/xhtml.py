@@ -53,7 +53,9 @@ def forreq(req, tree):
     req.ohead["Content-Type"] = "text/html; charset=utf-8"
     buf = StringIO.StringIO()
     htmlindenter.output(buf, tree, doctype=(doctype, dtd), charset="utf-8")
-    return [buf.getvalue()]
+    ret = buf.getvalue()
+    req.ohead["Content-Length"] = len(ret)
+    return [ret]
 
 def xhtmlresp(callable):
     def wrapper(req):

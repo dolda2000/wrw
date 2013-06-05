@@ -70,4 +70,5 @@ class redirect(dispatch.restart):
     def handle(self, req):
         req.status(self.status, "Redirect")
         req.ohead["Location"] = proto.appendurl(proto.requrl(req), self.url)
+        req.ohead["Content-Length"] = 0
         return []

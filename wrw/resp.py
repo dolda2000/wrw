@@ -42,7 +42,7 @@ class message(dispatch.restart):
         self.detail = detail
 
     def handle(self, req):
-        return skelfor(req).error(req, self.message, *self.detail)
+        return skelfor(req).message(req, self.message, *self.detail)
 
 class httperror(usererror):
     def __init__(self, status, message = None, detail = None):

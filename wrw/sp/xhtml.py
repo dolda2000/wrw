@@ -60,4 +60,5 @@ def forreq(req, tree):
 def xhtmlresp(callable):
     def wrapper(req):
         return forreq(req, callable(req))
+    wrapper.__wrapped__ = callable
     return wrapper

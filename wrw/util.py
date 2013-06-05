@@ -1,9 +1,10 @@
-import inspect
-import req, dispatch, session, form, resp
+import inspect, math
+import req, dispatch, session, form, resp, proto
 
 def wsgiwrap(callable):
     def wrapper(env, startreq):
         return dispatch.handleenv(env, startreq, callable)
+    wrapper.__wrapped__ = callable
     return wrapper
 
 def formparams(callable):
@@ -20,7 +21,46 @@ def formparams(callable):
             if spec.args[i] not in args:
                 raise resp.httperror(400, "Missing parameter", ("The query parameter `", resp.h.code(spec.args[i]), "' is required but not supplied."))
         return callable(**args)
+    wrapper.__wrapped__ = callable
     return wrapper
+
+class funplex(object):
+    def __init__(self, *funs, **nfuns):
+        self.dir = {}
+        self.dir.update(((self.unwrap(fun).__name__, fun) for fun in funs))
+        self.dir.update(nfuns)
+
+    @staticmethod
+    def unwrap(fun):
+        while hasattr(fun, "__wrapped__"):
+            fun = fun.__wrapped__
+        return fun
+
+    def __call__(self, req):
+        if req.pathinfo == "":
+            raise resp.redirect(req.uriname + "/")
+        if req.pathinfo[:1] != "/":
+            raise resp.notfound()
+        p = req.pathinfo[1:]
+        if p == "":
+            p = "__index__"
+            bi = 1
+        else:
+            p = p.partition("/")[0]
+            bi = len(p) + 1
+        if p in self.dir:
+            return self.dir[p](req.shift(bi))
+        raise resp.notfound()
+
+    def add(self, fun):
+        self.dir[self.unwrap(fun).__name__] = fun
+        return fun
+
+    def name(self, name):
+        def dec(fun):
+            self.dir[name] = fun
+            return fun
+        return dec
 
 def persession(data = None):
     def dec(callable):
@@ -34,6 +74,7 @@ def persession(data = None):
                         sess[data] = data()
                     sess[callable] = callable(data)
             return sess[callable].handle(req)
+        wrapper.__wrapped__ = callable
         return wrapper
     return dec
 
@@ -66,6 +107,7 @@ class preiter(object):
 def pregen(callable):
     def wrapper(*args, **kwargs):
         return preiter(callable(*args, **kwargs))
+    wrapper.__wrapped__ = callable
     return wrapper
 
 class sessiondata(object):
@@ -212,3 +254,10 @@ class specdirty(sessiondata):
                 ss[i] = specslot.unbound
             else:
                 ss[i] = val
+
+def datecheck(req, mtime):
+    if "If-Modified-Since" in req.ihead:
+        rtime = proto.phttpdate(req.ihead["If-Modified-Since"])
+        if rtime >= math.floor(mtime):
+            raise resp.unmodified()
+    req.ohead["Last-Modified"] = proto.httpdate(mtime)

@@ -1,3 +1,5 @@
+import io
+from .. import dispatch
 from . import cons
 
 def findnsnames(el):
@@ -144,6 +146,12 @@ class formatter(object):
     def fragment(cls, out, el, *args, **kw):
         cls(out=out, root=el, *args, **kw).node(el)
 
+    @classmethod
+    def format(cls, el, *args, **kw):
+        buf = io.BytesIO()
+        cls.output(buf, el, *args, **kw)
+        return buf.getvalue()
+
     def update(self, **ch):
         ret = type(self).__new__(type(self))
         ret.__dict__.update(self.__dict__)
@@ -212,3 +220,20 @@ class indenter(formatter):
     def start(self):
         super(indenter, self).start()
         self.write('\n')
+
+class response(dispatch.restart):
+    charset = "utf-8"
+    doctype = None
+    formatter = indenter
+
+    def __init__(self, root):
+        super().__init__()
+        self.root = root
+
+    @property
+    def ctype(self):
+        raise Exception("a subclass of wrw.sp.util.response must override ctype")
+
+    def handle(self, req):
+        req.ohead["Content-Type"] = self.ctype
+        return [self.formatter.format(self.root, doctype=self.doctype, charset=self.charset)]

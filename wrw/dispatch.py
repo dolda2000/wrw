@@ -24,6 +24,7 @@ def defaulterror(req, excinfo):
 def wraphandler(handler, excinfo):
     def wrapped(req):
         return handler(req, excinfo)
+    wrapped.__wrapped__ = handler
     return wrapped
 
 errorhandler = env.var(defaulterror)

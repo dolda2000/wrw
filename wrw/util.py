@@ -8,9 +8,9 @@ def wsgiwrap(callable):
     return wrapper
 
 def formparams(callable):
+    spec = inspect.getargspec(callable)
     def wrapper(req):
         data = form.formdata(req)
-        spec = inspect.getargspec(callable)
         args = dict(data.items())
         args["req"] = req
         if not spec.keywords:

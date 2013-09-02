@@ -62,14 +62,20 @@ class notfound(httperror):
         return super(notfound, self).__init__(404)
 
 class redirect(dispatch.restart):
-    def __init__(self, url, status = 303):
+    bases = {"url": proto.requrl,
+             "script": proto.scripturl,
+             "site": proto.siteurl}
+
+    def __init__(self, url, status = 303, base = "url"):
         super(redirect, self).__init__()
         self.url = url
         self.status = status
+        self.bases[base]
+        self.base = base
 
     def handle(self, req):
         req.status(self.status, "Redirect")
-        req.ohead["Location"] = proto.appendurl(proto.requrl(req), self.url)
+        req.ohead["Location"] = proto.appendurl(self.bases[self.base](req), self.url)
         req.ohead["Content-Length"] = 0
         return []
 

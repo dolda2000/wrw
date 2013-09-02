@@ -62,7 +62,7 @@ class context(object):
         node.attrs[str(k)] = str(v)
 
 class constructor(object):
-    def __init__(self, ns, elcls = element, ctx=None):
+    def __init__(self, ns, elcls=element, ctx=None):
         self._ns = ns
         self._elcls = elcls
         if ctx is None: ctx = context()

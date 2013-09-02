@@ -23,7 +23,7 @@ class cookiedict(object):
     def __contains__(self, name):
         return name in self.bk
 
-    def get(self, name, default = None):
+    def get(self, name, default=None):
         if name not in self.bk:
             return default
         return self.bk[name].value
@@ -39,7 +39,7 @@ class cookiedict(object):
 def cookies(req):
     return req.item(cookiedict)
 
-def get(req, name, default = None):
+def get(req, name, default=None):
     return cookies(req).get(name, default)
 
 def add(req, name, value, **kw):

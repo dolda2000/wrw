@@ -16,7 +16,7 @@ def gennonce(length):
     return nonce
 
 class session(object):
-    def __init__(self, lock, expire = 86400 * 7):
+    def __init__(self, lock, expire=86400 * 7):
         self.id = hexencode(gennonce(16))
         self.dict = {}
         self.lock = lock
@@ -39,7 +39,7 @@ class session(object):
     def __getitem__(self, key):
         return self.dict[key]
 
-    def get(self, key, default = None):
+    def get(self, key, default=None):
         return self.dict.get(key, default)
 
     def __setitem__(self, key, value):
@@ -74,7 +74,7 @@ class session(object):
         return "<session %s>" % self.id
 
 class db(object):
-    def __init__(self, backdb = None, cookiename = "wrwsess", path = "/"):
+    def __init__(self, backdb=None, cookiename="wrwsess", path="/"):
         self.live = {}
         self.cookiename = cookiename
         self.path = path
@@ -235,7 +235,7 @@ class dirback(object):
         with open(os.path.join(self.path, key), "w") as out:
             out.write(value)
 
-default = env.var(db(backdb = dirback(os.path.join("/tmp", "wrwsess-" + str(os.getuid())))))
+default = env.var(db(backdb=dirback(os.path.join("/tmp", "wrwsess-" + str(os.getuid())))))
 
 def get(req):
     return default.val.get(req)

@@ -104,8 +104,9 @@ def simpleerror(env, startreq, code, title, msg):
 
 def urlq(url):
     ret = ""
+    invalid = "&=#?/\"'"
     for c in url:
-        if c == "&" or c == "=" or c == "#" or c == "?" or c == "/" or (ord(c) <= 32):
+        if c in invalid or (ord(c) <= 32):
             ret += "%%%02X" % ord(c)
         else:
             ret += c

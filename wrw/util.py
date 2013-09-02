@@ -17,16 +17,16 @@ def stringwrap(charset):
     return dec
 
 def formparams(callable):
+    spec = inspect.getargspec(callable)
     def wrapper(req):
         data = form.formdata(req)
-        spec = inspect.getargspec(callable)
         args = dict(data.items())
         args["req"] = req
         if not spec.keywords:
             for arg in list(args):
                 if arg not in spec.args:
                     del args[arg]
-        for i in range(len(spec.args) - len(spec.defaults)):
+        for i in range(len(spec.args) - (len(spec.defaults) if spec.defaults else 0)):
             if spec.args[i] not in args:
                 raise resp.httperror(400, "Missing parameter", ("The query parameter `", resp.h.code(spec.args[i]), "' is required but not supplied."))
         return callable(**args)
@@ -71,7 +71,7 @@ class funplex(object):
             return fun
         return dec
 
-def persession(data = None):
+def persession(data=None):
     def dec(callable):
         def wrapper(req):
             sess = session.get(req)
@@ -121,7 +121,7 @@ def pregen(callable):
 
 class sessiondata(object):
     @classmethod
-    def get(cls, req, create = True):
+    def get(cls, req, create=True):
         sess = cls.sessdb().get(req)
         with sess.lock:
             try:

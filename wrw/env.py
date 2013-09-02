@@ -10,7 +10,7 @@ class stack(object):
 
 class environment(object):
     __slots__ = ["parent", "map"]
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         self.parent = parent
         self.map = weakref.WeakKeyDictionary()
 
@@ -74,7 +74,7 @@ class binding(object):
 
 class var(object):
     __slots__ = ["__weakref__"]
-    def __init__(self, default = None):
+    def __init__(self, default=None):
         if default is not None:
             root.map[self] = default
 

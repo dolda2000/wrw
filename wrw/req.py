@@ -21,7 +21,7 @@ class headdict(object):
     def __iter__(self):
         return iter((list[0] for list in self.dict.values()))
     
-    def get(self, key, default = ""):
+    def get(self, key, default=""):
         if key.lower() in self.dict:
             return self.dict[key.lower()][1]
         return default

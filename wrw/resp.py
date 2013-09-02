@@ -42,10 +42,10 @@ class message(dispatch.restart):
         self.detail = detail
 
     def handle(self, req):
-        return skelfor(req).error(req, self.message, *self.detail)
+        return skelfor(req).message(req, self.message, *self.detail)
 
 class httperror(usererror):
-    def __init__(self, status, message = None, detail = None):
+    def __init__(self, status, message=None, detail=None):
         if message is None:
             message = proto.statusinfo[status][0]
         if detail is None:
@@ -62,14 +62,20 @@ class notfound(httperror):
         return super().__init__(404)
 
 class redirect(dispatch.restart):
-    def __init__(self, url, status = 303):
+    bases = {"url": proto.requrl,
+             "script": proto.scripturl,
+             "site": proto.siteurl}
+
+    def __init__(self, url, status=303, base="url"):
         super().__init__()
         self.url = url
         self.status = status
+        self.bases[base]
+        self.base = base
 
     def handle(self, req):
         req.status(self.status, "Redirect")
-        req.ohead["Location"] = proto.appendurl(proto.requrl(req), self.url)
+        req.ohead["Location"] = proto.appendurl(self.bases[self.base](req), self.url)
         req.ohead["Content-Length"] = 0
         return []
 

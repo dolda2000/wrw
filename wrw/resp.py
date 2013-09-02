@@ -45,7 +45,7 @@ class message(dispatch.restart):
         return skelfor(req).message(req, self.message, *self.detail)
 
 class httperror(usererror):
-    def __init__(self, status, message = None, detail = None):
+    def __init__(self, status, message=None, detail=None):
         if message is None:
             message = proto.statusinfo[status][0]
         if detail is None:
@@ -66,7 +66,7 @@ class redirect(dispatch.restart):
              "script": proto.scripturl,
              "site": proto.siteurl}
 
-    def __init__(self, url, status = 303, base = "url"):
+    def __init__(self, url, status=303, base="url"):
         super(redirect, self).__init__()
         self.url = url
         self.status = status

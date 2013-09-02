@@ -13,7 +13,7 @@ class formwrap(object):
     def __getitem__(self, key):
         return self.cf[key][0]
 
-    def get(self, key, default = ""):
+    def get(self, key, default=""):
         if key in self:
             return self.cf[key][0]
         return default
@@ -78,7 +78,7 @@ class formpart(object):
                     raise badmultipart("Missing last multipart boundary")
                 self.form.buf += ret
 
-    def read(self, limit = -1):
+    def read(self, limit=-1):
         self.fillbuf(limit)
         if limit >= 0:
             ret = self.buf[:limit]
@@ -88,7 +88,7 @@ class formpart(object):
             self.buf = ""
         return ret
 
-    def readline(self, limit = -1):
+    def readline(self, limit=-1):
         last = 0
         while True:
             p = self.buf.find('\n', last)

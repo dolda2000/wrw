@@ -62,7 +62,7 @@ class funplex(object):
             return fun
         return dec
 
-def persession(data = None):
+def persession(data=None):
     def dec(callable):
         def wrapper(req):
             sess = session.get(req)
@@ -112,7 +112,7 @@ def pregen(callable):
 
 class sessiondata(object):
     @classmethod
-    def get(cls, req, create = True):
+    def get(cls, req, create=True):
         sess = cls.sessdb().get(req)
         with sess.lock:
             try:

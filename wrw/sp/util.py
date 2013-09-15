@@ -234,5 +234,7 @@ class response(dispatch.restart):
         raise Exception("a subclass of wrw.sp.util.response must override ctype")
 
     def handle(self, req):
+        ret = self.formatter.format(self.root, doctype=self.doctype, charset=self.charset)
         req.ohead["Content-Type"] = self.ctype
-        return [self.formatter.format(self.root, doctype=self.doctype, charset=self.charset)]
+        req.ohead["Content-Length"] = len(ret)
+        return [ret]

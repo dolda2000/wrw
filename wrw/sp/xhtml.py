@@ -19,7 +19,7 @@ class xhtmlcontext(_cons.context):
 
     def addattr(self, node, k, v):
         k = str(k)
-        node.attrs[self.attrmap.get(k, k)] = str(v)
+        super().addattr(node, self.attrmap.get(k, k), v)
 
 def cons(ctx=None):
     if ctx is None: ctx = xhtmlcontext()

@@ -59,7 +59,8 @@ class context(object):
         node.children.append(self.nodefrom(child))
 
     def addattr(self, node, k, v):
-        node.attrs[str(k)] = str(v)
+        if v is not None:
+            node.attrs[str(k)] = str(v)
 
 class constructor(object):
     def __init__(self, ns, elcls=element, ctx=None):

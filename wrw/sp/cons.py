@@ -60,7 +60,8 @@ class context(object):
         node.children.append(self.nodefrom(child))
 
     def addattr(self, node, k, v):
-        node.attrs[unicode(k)] = unicode(v)
+        if v is not None:
+            node.attrs[unicode(k)] = unicode(v)
 
 class constructor(object):
     def __init__(self, ns, elcls=element, ctx=None):

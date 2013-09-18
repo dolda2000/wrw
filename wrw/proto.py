@@ -103,15 +103,15 @@ def simpleerror(env, startreq, code, title, msg):
     return [buf]
 
 def urlq(url):
-    if isinstance(url, unicode):
+    if isinstance(url, str):
         url = url.encode("utf-8")
     ret = ""
-    invalid = "&=#?/\"'"
+    invalid = b"&=#?/\"'"
     for c in url:
-        if c in invalid or (ord(c) <= 32) or (ord(c) >= 128):
-            ret += "%%%02X" % ord(c)
+        if c in invalid or (c <= 32) or (c >= 128):
+            ret += "%%%02X" % c
         else:
-            ret += c
+            ret += chr(c)
     return ret
 
 class urlerror(ValueError):

@@ -1,3 +1,4 @@
+import sys
 import xml.dom.minidom
 
 class node(object):
@@ -39,9 +40,11 @@ class element(node):
         return self.__todom__(doc).toxml()
 
 class context(object):
+    charset = sys.getfilesystemencoding()
+
     def __init__(self):
         self.nodeconv = {}
-        self.nodeconv[bytes] = lambda ob: text(ob, "utf-8")
+        self.nodeconv[bytes] = lambda ob: text(ob, self.charset)
         self.nodeconv[str] = text
         self.nodeconv[int] = text
         self.nodeconv[float] = text

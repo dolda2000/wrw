@@ -40,7 +40,7 @@ class element(node):
         return self.__todom__(doc).toxml()
 
 class context(object):
-    charset = sys.getfilesystemencoding()
+    charset = (sys.getfilesystemencoding() or "ascii")
 
     def __init__(self):
         self.nodeconv = {}

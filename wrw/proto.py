@@ -1,4 +1,4 @@
-import time
+import time, calendar
 
 statusinfo = {
     400: ("Bad Request", "Invalid HTTP request."),
@@ -21,7 +21,7 @@ def phttpdate(dstr):
         return None
     tz = int(tz[1:])
     tz = (((tz / 100) * 60) + (tz % 100)) * 60
-    return time.mktime(time.strptime(dstr, "%a, %d %b %Y %H:%M:%S")) - tz - time.altzone
+    return calendar.timegm(time.strptime(dstr, "%a, %d %b %Y %H:%M:%S")) - tz
 
 def pmimehead(hstr):
     def pws(p):

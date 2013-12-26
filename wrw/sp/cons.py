@@ -59,6 +59,8 @@ class context(object):
         raise Exception("No node conversion known for %s objects" % str(type(ob)))
 
     def addchild(self, node, child):
+        if child is None:
+            return
         node.children.append(self.nodefrom(child))
 
     def addattr(self, node, k, v):

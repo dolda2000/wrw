@@ -77,3 +77,9 @@ class constructor(object):
 
     def __getattr__(self, name):
         return self._elcls(self._ns, name, self._ctx)
+
+class doctype(node):
+    def __init__(self, rootname, pubid, dtdid):
+        self.rootname = rootname
+        self.pubid = pubid
+        self.dtdid = dtdid

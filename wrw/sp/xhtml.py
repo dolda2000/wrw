@@ -39,13 +39,14 @@ def head(title=None, css=None):
 
 class htmlformatter(util.formatter):
     allowshort = set([u"br", u"hr", u"img", u"input", u"meta", u"link"])
-    def element(self, el, **extra):
+    def shorttag(self, el):
         if el.name in self.allowshort:
-            super(htmlformatter, self).element(el, **extra)
+            super(htmlformatter, self).shorttag(el)
         else:
-            self.longtag(el, **extra)
+            self.starttag(el)
+            self.endtag(el)
 
-class htmlindenter(util.indenter, htmlformatter):
+class htmlindenter(util.textindenter, htmlformatter):
     pass
 
 def forreq(req, tree):

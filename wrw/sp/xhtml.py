@@ -38,14 +38,15 @@ def head(title=None, css=None):
     return head
 
 class htmlformatter(util.formatter):
-    allowshort = set(["br", "hr", "img", "input", "meta", "link"])
-    def element(self, el, **extra):
+    allowshort = {"br", "hr", "img", "input", "meta", "link"}
+    def shorttag(self, el):
         if el.name in self.allowshort:
-            super().element(el, **extra)
+            super().shorttag(el)
         else:
-            self.longtag(el, **extra)
+            self.starttag(el)
+            self.endtag(el)
 
-class htmlindenter(util.indenter, htmlformatter):
+class htmlindenter(util.textindenter, htmlformatter):
     pass
 
 def forreq(req, tree):

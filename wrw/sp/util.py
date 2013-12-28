@@ -134,14 +134,7 @@ class formatter(object):
     def end(self, el):
         pass
 
-    def next(self):
-        if self.src is None:
-            raise StopIteration()
-        try:
-            ev, el = next(self.src)
-        except StopIteration:
-            self.src = None
-            ev, el = "$", None
+    def handle(self, ev, el):
         if ev == ">":
             self.starttag(el)
         elif ev == "/":
@@ -156,6 +149,16 @@ class formatter(object):
             self.start(el)
         elif ev == "$":
             self.end(el)
+
+    def next(self):
+        if self.src is None:
+            raise StopIteration()
+        try:
+            ev, el = next(self.src)
+        except StopIteration:
+            self.src = None
+            ev, el = "$", None
+        self.handle(ev, el)
         ret = str(self.buf)
         self.buf[:] = ""
         return ret
@@ -225,6 +228,7 @@ class indenter(formatter):
         self.atbreak = True
         self.inline = False
         self.stack = []
+        self.last = None, None
 
     def write(self, text):
         lines = text.split(u"\n")
@@ -258,7 +262,10 @@ class indenter(formatter):
 
     def starttag(self, el):
         if not self.inline:
-            self.br()
+            if self.last[0] == "<" and self.last[1].name == el.name:
+                pass
+            else:
+                self.br()
         self.push(el)
         self.inline = self.inline or self.inlinep(el)
         self.curind += self.indent
@@ -282,6 +289,10 @@ class indenter(formatter):
 
     def end(self, el):
         self.br()
+
+    def handle(self, ev, el):
+        super(indenter, self).handle(ev, el)
+        self.last = ev, el
 
 class textindenter(indenter):
     maxcol = 70

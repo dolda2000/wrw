@@ -229,6 +229,7 @@ class indenter(formatter):
         self.inline = False
         self.stack = []
         self.last = None, None
+        self.lastendbr = True
 
     def write(self, text):
         lines = text.split("\n")
@@ -262,7 +263,7 @@ class indenter(formatter):
 
     def starttag(self, el):
         if not self.inline:
-            if self.last[0] == "<" and self.last[1].name == el.name:
+            if self.last[0] == "<" and self.last[1].name == el.name and self.lastendbr:
                 pass
             else:
                 self.br()
@@ -279,8 +280,11 @@ class indenter(formatter):
     def endtag(self, el):
         il = self.inline
         self.pop()
-        if not il:
+        if il or (self.last[0] == ">" and self.last[1] == el):
+            self.lastendbr = False
+        else:
             self.br()
+            self.lastendbr = True
         super().endtag(el)
 
     def start(self, el):

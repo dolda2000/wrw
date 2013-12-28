@@ -43,8 +43,8 @@ class htmlformatter(util.formatter):
         if el.name in self.allowshort:
             super().shorttag(el)
         else:
-            self.starttag(el)
-            self.endtag(el)
+            self.handle(">", el)
+            self.handle("<", el)
 
 class htmlindenter(util.textindenter, htmlformatter):
     pass

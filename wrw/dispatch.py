@@ -19,6 +19,7 @@ def mangle(result):
 def defaulterror(req, excinfo):
     from . import resp
     traceback.print_exception(*excinfo)
+    sys.stderr.flush()
     raise resp.httperror(500)
 
 def wraphandler(handler, excinfo):

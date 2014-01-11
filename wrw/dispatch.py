@@ -58,7 +58,7 @@ def handleenv(env, startreq, handler):
 
 def exterror(env, startreq):
     def handler(req):
-        import resp
+        from . import resp
         code = 404
         if "Response-Code" in req.ihead:
             try:

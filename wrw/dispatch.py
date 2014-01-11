@@ -55,3 +55,15 @@ def handleenv(env, startreq, handler):
         return proto.simpleerror(env, startreq, 400, "Bad Request", "Request must include Host header.")
     r = req.origrequest(env)
     return handle(r, startreq, handler)
+
+def exterror(env, startreq):
+    def handler(req):
+        import resp
+        code = 404
+        if "Response-Code" in req.ihead:
+            try:
+                code = int(req.ihead["Response-Code"])
+            except ValueError:
+                pass
+        raise resp.httperror(code)
+    return handleenv(env, startreq, handler)

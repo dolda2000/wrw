@@ -7,16 +7,6 @@ def wsgiwrap(callable):
     wrapper.__wrapped__ = callable
     return wrapper
 
-def stringwrap(charset):
-    def dec(callable):
-        def wrapper(*args, **kwargs):
-            bk = callable(*args, **kwargs)
-            for string in bk:
-                yield string.encode(charset)
-        wrapper.__wrapped__ = callable
-        return wrapper
-    return dec
-
 def formparams(callable):
     spec = inspect.getargspec(callable)
     def wrapper(req):
@@ -119,6 +109,16 @@ def pregen(callable):
         return preiter(callable(*args, **kwargs))
     wrapper.__wrapped__ = callable
     return wrapper
+
+def stringwrap(charset):
+    def dec(callable):
+        @pregen
+        def wrapper(*args, **kwargs):
+            for string in callable(*args, **kwargs):
+                yield string.encode(charset)
+        wrapper.__wrapped__ = callable
+        return wrapper
+    return dec
 
 class sessiondata(object):
     @classmethod

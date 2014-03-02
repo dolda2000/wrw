@@ -13,6 +13,7 @@ def stringwrap(charset):
             bk = callable(*args, **kwargs)
             for string in bk:
                 yield string.encode(charset)
+        wrapper.__wrapped__ = callable
         return wrapper
     return dec
 

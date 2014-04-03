@@ -8,7 +8,7 @@ def gennonce(length):
 
 class session(object):
     def __init__(self, lock, expire=86400 * 7):
-        self.id = binascii.b2a_hex(gennonce(16))
+        self.id = binascii.b2a_hex(gennonce(16)).encode("us-ascii")
         self.dict = {}
         self.lock = lock
         self.ctime = self.atime = self.mtime = int(time.time())

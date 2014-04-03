@@ -10,7 +10,7 @@ def formparse(req):
         if req.input.limit > 2 ** 20:
             raise ValueError("x-www-form-urlencoded data is absurdly long")
         rbody = req.input.read()
-        buf.update(urllib.parse.parse_qsl(rbody))
+        buf.update(urllib.parse.parse_qsl(rbody.decode("latin1")))
     return buf
 
 class badmultipart(Exception):

@@ -3,21 +3,12 @@ import cookie, env
 
 __all__ = ["db", "get"]
 
-def hexencode(str):
-    ret = ""
-    for byte in str:
-        ret += "%02X" % (ord(byte),)
-    return ret
-
 def gennonce(length):
-    nonce = ""
-    for i in xrange(length):
-        nonce += chr(random.randint(0, 255))
-    return nonce
+    return os.urandom(length)
 
 class session(object):
     def __init__(self, lock, expire=86400 * 7):
-        self.id = hexencode(gennonce(16))
+        self.id = gennonce(16).encode("hex")
         self.dict = {}
         self.lock = lock
         self.ctime = self.atime = self.mtime = int(time.time())

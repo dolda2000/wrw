@@ -1,23 +1,14 @@
-import threading, time, pickle, random, os
+import threading, time, pickle, random, os, binascii
 from . import cookie, env
 
 __all__ = ["db", "get"]
 
-def hexencode(str):
-    ret = ""
-    for byte in str:
-        ret += "%02X" % (ord(byte),)
-    return ret
-
 def gennonce(length):
-    nonce = ""
-    for i in range(length):
-        nonce += chr(random.randint(0, 255))
-    return nonce
+    return os.urandom(length)
 
 class session(object):
     def __init__(self, lock, expire=86400 * 7):
-        self.id = hexencode(gennonce(16))
+        self.id = binascii.b2a_hex(gennonce(16))
         self.dict = {}
         self.lock = lock
         self.ctime = self.atime = self.mtime = int(time.time())

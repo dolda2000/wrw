@@ -1,41 +1,17 @@
-import cgi
+import urlparse
 import proto
 
 __all__ = ["formdata"]
 
-class formwrap(object):
-    def __init__(self, req):
-        if req.ihead.get("Content-Type") == "application/x-www-form-urlencoded":
-            self.cf = cgi.parse(environ = req.env, fp = req.input)
-        else:
-            self.cf = cgi.parse(environ = req.env)
-
-    def __getitem__(self, key):
-        return self.cf[key][0]
-
-    def get(self, key, default=""):
-        if key in self:
-            return self.cf[key][0]
-        return default
-
-    def __contains__(self, key):
-        return key in self.cf and len(self.cf[key]) > 0
-
-    def __iter__(self):
-        return iter(self.cf)
-
-    def items(self):
-        def iter():
-            for key, list in self.cf.items():
-                for val in list:
-                    yield key, val
-        return list(iter())
-
-    def keys(self):
-        return self.cf.keys()
-
-    def values(self):
-        return [val for key, val in self.items()]
+def formparse(req):
+    buf = {}
+    buf.update(urlparse.parse_qsl(req.query))
+    if req.ihead.get("Content-Type") == "application/x-www-form-urlencoded":
+        if req.input.limit > 2 ** 20:
+            raise ValueError("x-www-form-urlencoded data is absurdly long")
+        rbody = req.input.read()
+        buf.update(urlparse.parse_qsl(rbody))
+    return buf
 
 class badmultipart(Exception):
     pass
@@ -177,4 +153,4 @@ class multipart(object):
         return self.lastpart
 
 def formdata(req):
-    return req.item(formwrap)
+    return req.item(formparse)

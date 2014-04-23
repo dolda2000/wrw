@@ -267,6 +267,6 @@ class specdirty(sessiondata, metaclass=specclass):
 def datecheck(req, mtime):
     if "If-Modified-Since" in req.ihead:
         rtime = proto.phttpdate(req.ihead["If-Modified-Since"])
-        if rtime >= math.floor(mtime):
+        if rtime is not None and rtime >= math.floor(mtime):
             raise resp.unmodified()
     req.ohead["Last-Modified"] = proto.httpdate(mtime)

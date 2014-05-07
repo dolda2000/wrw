@@ -7,7 +7,7 @@ def formparse(req):
     buf = {}
     buf.update(urllib.parse.parse_qsl(req.query))
     if req.ihead.get("Content-Type") == "application/x-www-form-urlencoded":
-        rbody = req.input(2 ** 20)
+        rbody = req.input.read(2 ** 20)
         if len(rbody) >= 2 ** 20:
             raise ValueError("x-www-form-urlencoded data is absurdly long")
         buf.update(urllib.parse.parse_qsl(rbody.decode("latin1")))

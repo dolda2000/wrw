@@ -49,7 +49,9 @@ class funplex(object):
             p = p.partition("/")[0]
             bi = len(p) + 1
         if p in self.dir:
-            return self.dir[p](req.shift(bi))
+            sreq = req.shift(bi)
+            sreq.selfpath = req.pathinfo[1:]
+            return self.dir[p](sreq)
         raise resp.notfound()
 
     def add(self, fun):

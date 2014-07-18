@@ -1,4 +1,4 @@
-import time, calendar
+import time, calendar, collections, binascii, base64
 
 statusinfo = {
     400: ("Bad Request", "Invalid HTTP request."),
@@ -195,3 +195,37 @@ def parurl(url, pars={}, **augment):
         return url + "?" + qs
     else:
         return url
+
+# Wrap these, since binascii is a bit funky. :P
+def enhex(bs):
+    return base64.b16encode(bs).decode("us-ascii")
+def unhex(es):
+    if not isinstance(es, collections.ByteString):
+        try:
+            es = es.encode("us-ascii")
+        except UnicodeError:
+            raise binascii.Error("non-ascii character in hex-string")
+    return base64.b16decode(es)
+def enb32(bs):
+    return base64.b32encode(bs).decode("us-ascii")
+def unb32(es):
+    if not isinstance(es, collections.ByteString):
+        try:
+            es = es.encode("us-ascii")
+        except UnicodeError:
+            raise binascii.Error("non-ascii character in base32-string")
+    if (len(es) % 8) != 0:
+        es += b"=" * (8 - (len(es) % 8))
+    es = es.upper()             # The whole point of Base32 is that it's case-insensitive :P
+    return base64.b32decode(es)
+def enb64(bs):
+    return base64.b64encode(bs).decode("us-ascii")
+def unb64(es):
+    if not isinstance(es, collections.ByteString):
+        try:
+            es = es.encode("us-ascii")
+        except UnicodeError:
+            raise binascii.Error("non-ascii character in base64-string")
+    if (len(es) % 4) != 0:
+        es += b"=" * (4 - (len(es) % 4))
+    return base64.b64decode(es)

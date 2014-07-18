@@ -1,5 +1,5 @@
-import threading, time, pickle, random, os, binascii
-from . import cookie, env
+import threading, time, pickle, random, os
+from . import cookie, env, proto
 
 __all__ = ["db", "get"]
 
@@ -8,7 +8,7 @@ def gennonce(length):
 
 class session(object):
     def __init__(self, lock, expire=86400 * 7):
-        self.id = binascii.b2a_hex(gennonce(16)).decode("us-ascii")
+        self.id = proto.enhex(gennonce(16))
         self.dict = {}
         self.lock = lock
         self.ctime = self.atime = self.mtime = int(time.time())

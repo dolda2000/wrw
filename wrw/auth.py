@@ -1,5 +1,5 @@
 import binascii, hashlib, threading, time
-from . import resp
+from . import resp, proto
 
 class unauthorized(resp.httperror):
     def __init__(self, challenge, message=None, detail=None):
@@ -31,11 +31,7 @@ def parsebasic(req):
     if mech != "basic":
         return None, None
     try:
-        data = data.encode("us-ascii")
-    except UnicodeError:
-        return None, None
-    try:
-        raw = binascii.a2b_base64(data)
+        raw = proto.unb64(data)
     except binascii.Error:
         return None, None
     try:

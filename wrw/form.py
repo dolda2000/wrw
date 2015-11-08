@@ -81,7 +81,9 @@ class formpart(object):
                 return ret
 
     def close(self):
-        self.fillbuf(-1)
+        while True:
+            if self.read(8192) == b"":
+                break
 
     def __enter__(self):
         return self

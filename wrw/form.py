@@ -50,7 +50,7 @@ class formpart(object):
                 break
             while len(self.form.buf) <= len(lboundary):
                 ret = req.input.read(8192)
-                if ret == "":
+                if ret == b"":
                     raise badmultipart("Missing last multipart boundary")
                 self.form.buf += ret
 
@@ -61,7 +61,7 @@ class formpart(object):
             self.buf = self.buf[limit:]
         else:
             ret = self.buf
-            self.buf = ""
+            self.buf = b""
         return ret
 
     def readline(self, limit=-1):
@@ -71,7 +71,7 @@ class formpart(object):
             if p < 0:
                 if self.eof:
                     ret = self.buf
-                    self.buf = ""
+                    self.buf = b""
                     return ret
                 last = len(self.buf)
                 self.fillbuf(last + 128)

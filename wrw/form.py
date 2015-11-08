@@ -7,9 +7,12 @@ def formparse(req):
     buf = {}
     buf.update(urllib.parse.parse_qsl(req.query))
     if req.ihead.get("Content-Type") == "application/x-www-form-urlencoded":
-        rbody = req.input.read(2 ** 20)
+        try:
+            rbody = req.input.read(2 ** 20)
+        except IOError as exc:
+            return exc
         if len(rbody) >= 2 ** 20:
-            raise ValueError("x-www-form-urlencoded data is absurdly long")
+            return ValueError("x-www-form-urlencoded data is absurdly long")
         buf.update(urllib.parse.parse_qsl(rbody.decode("latin1")))
     return buf
 
@@ -50,7 +53,7 @@ class formpart(object):
                 break
             while len(self.form.buf) <= len(lboundary):
                 ret = req.input.read(8192)
-                if ret == "":
+                if ret == b"":
                     raise badmultipart("Missing last multipart boundary")
                 self.form.buf += ret
 
@@ -61,7 +64,7 @@ class formpart(object):
             self.buf = self.buf[limit:]
         else:
             ret = self.buf
-            self.buf = ""
+            self.buf = b""
         return ret
 
     def readline(self, limit=-1):
@@ -71,7 +74,7 @@ class formpart(object):
             if p < 0:
                 if self.eof:
                     ret = self.buf
-                    self.buf = ""
+                    self.buf = b""
                     return ret
                 last = len(self.buf)
                 self.fillbuf(last + 128)
@@ -81,7 +84,9 @@ class formpart(object):
                 return ret
 
     def close(self):
-        self.fillbuf(-1)
+        while True:
+            if self.read(8192) == b"":
+                break
 
     def __enter__(self):
         return self
@@ -159,5 +164,10 @@ class multipart(object):
         self.lastpart.parsehead(self.headcs)
         return self.lastpart
 
-def formdata(req):
-    return req.item(formparse)
+def formdata(req, onerror=Exception):
+    data = req.item(formparse)
+    if isinstance(data, Exception):
+        if onerror is Exception:
+            raise data
+        return onerror
+    return data

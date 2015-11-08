@@ -10,7 +10,10 @@ def wsgiwrap(callable):
 def formparams(callable):
     spec = inspect.getargspec(callable)
     def wrapper(req):
-        data = form.formdata(req)
+        try:
+            data = form.formdata(req)
+        except IOError:
+            raise resp.httperror(400, "Invalid request", "Form data was incomplete")
         args = dict(data.items())
         args["req"] = req
         if not spec.keywords:

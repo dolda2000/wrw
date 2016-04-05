@@ -1,4 +1,4 @@
-import sys
+import sys, collections.abc
 import xml.dom.minidom
 
 class node(object):
@@ -56,12 +56,19 @@ class context(object):
             return ob.__tonode__()
         if type(ob) in self.nodeconv:
             return self.nodeconv[type(ob)](ob)
-        raise Exception("No node conversion known for %s objects" % str(type(ob)))
+        return None
 
     def addchild(self, node, child):
         if child is None:
             return
-        node.children.append(self.nodefrom(child))
+        new = self.nodefrom(child)
+        if new is not None:
+            node.children.append(self.nodefrom(child))
+        elif isinstance(child, collections.abc.Iterable):
+            for ch in child:
+                self.addchild(node, ch)
+        else:
+            raise Exception("No node conversion known for %s objects" % str(type(ob)))
 
     def addattr(self, node, k, v):
         if v is not None:

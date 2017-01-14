@@ -63,12 +63,12 @@ class context(object):
             return
         new = self.nodefrom(child)
         if new is not None:
-            node.children.append(self.nodefrom(child))
+            node.children.append(new)
         elif isinstance(child, collections.abc.Iterable):
             for ch in child:
                 self.addchild(node, ch)
         else:
-            raise Exception("No node conversion known for %s objects" % str(type(ob)))
+            raise Exception("No node conversion known for %s objects" % str(type(child)))
 
     def addattr(self, node, k, v):
         if v is not None:

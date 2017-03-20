@@ -192,7 +192,7 @@ def parstring(pars={}, **augment):
 def parurl(url, pars={}, **augment):
     qs = parstring(pars, **augment)
     if qs != "":
-        return url + "?" + qs
+        return url + ("&" if "?" in url else "?") + qs
     else:
         return url
 

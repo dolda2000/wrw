@@ -230,6 +230,7 @@ class copyrequest(request):
         self.https = p.https
         self.ihead = p.ihead
         self.ohead = p.ohead
+        self.input = p.input
 
     def status(self, code, msg):
         return self.parent.status(code, msg)

@@ -16,7 +16,7 @@ def formparse(req):
         buf.update(urllib.parse.parse_qsl(rbody.decode("latin1")))
     return buf
 
-class badmultipart(Exception):
+class badmultipart(IOError):
     pass
 
 class formpart(object):

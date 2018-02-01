@@ -41,6 +41,8 @@ class funplex(object):
 
     def __call__(self, req):
         if req.pathinfo == "":
+            if "__root__" in self.dir:
+                return self.dir["__root__"](req)
             raise resp.redirect(req.uriname + "/")
         if req.pathinfo[:1] != "/":
             raise resp.notfound()

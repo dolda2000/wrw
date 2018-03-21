@@ -168,11 +168,16 @@ def scripturl(req):
         raise Exception("Malformed local part when reconstructing URL")
     return siteurl(req) + req.uriname[1:]
 
-def requrl(req):
+def requrl(req, qs=True):
     s = siteurl(req)
     if req.uri[0] != '/':
         raise Exception("Malformed local part when reconstructing URL")
-    return siteurl(req) + req.uri[1:]
+    pf = req.uri[1:]
+    if not qs:
+        p = pf.find('?')
+        if not p < 0:
+            pf = pf[:p]
+    return siteurl(req) + pf
 
 def parstring(pars={}, **augment):
     buf = ""

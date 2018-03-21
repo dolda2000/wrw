@@ -187,11 +187,15 @@ def parstring(pars={}, **augment):
             del augment[key]
         else:
             val = pars[key]
+        if val is None:
+            continue
         if buf != "": buf += "&"
         buf += urlq(key) + "=" + urlq(str(val))
-    for key in augment:
+    for key, val in augment.items():
+        if val is None:
+            continue
         if buf != "": buf += "&"
-        buf += urlq(key) + "=" + urlq(str(augment[key]))
+        buf += urlq(key) + "=" + urlq(str(val))
     return buf
 
 def parurl(url, pars={}, **augment):

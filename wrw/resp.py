@@ -1,4 +1,4 @@
-import os
+import sys, os, math
 from . import dispatch, proto, env
 from .sp import xhtml
 h = xhtml.cons()
@@ -109,14 +109,28 @@ class fileiter(object):
             self.fp = None
 
 class fileresp(dispatch.restart):
-    def __init__(self, fp, ctype):
+    def __init__(self, fp, ctype, charset=None, cachable=True):
         self.fp = fp
         self.ctype = ctype
+        if charset is None and ctype.startswith("text/"):
+            charset = sys.getdefaultencoding()
+        self.charset = charset
+        self.cachable = cachable
 
     def handle(self, req):
-        req.ohead["Content-Type"] = self.ctype
+        sb = None
         if hasattr(self.fp, "fileno"):
-            sz = os.fstat(self.fp.fileno()).st_size
-            if sz > 0:
-                req.ohead["Content-Length"] = str(sz)
+            sb = os.fstat(self.fp.fileno())
+        if self.cachable and sb and sb.st_mtime != 0:
+            if "If-Modified-Since" in req.ihead:
+                rtime = proto.phttpdate(req.ihead["If-Modified-Since"])
+                if rtime is not None and rtime >= math.floor(sb.st_mtime):
+                    raise unmodified()
+            req.ohead["Last-Modified"] = proto.httpdate(sb.st_mtime)
+        ctype = self.ctype
+        if self.charset is not None:
+            ctype += "; charset=%s" % (self.charset)
+        req.ohead["Content-Type"] = ctype
+        if sb and sb.st_size > 0:
+            req.ohead["Content-Length"] = str(sb.st_size)
         return fileiter(self.fp)

@@ -51,6 +51,10 @@ def fixcase(str):
         i += 1
     return str
 
+class shortinput(IOError, EOFError):
+    def __init__(self):
+        super().__init__("Unexpected EOF")
+
 class limitreader(object):
     def __init__(self, back, limit):
         self.bk = back
@@ -68,7 +72,7 @@ class limitreader(object):
         while len(self.buf) < ra:
             ret = self.bk.read(ra - len(self.buf))
             if ret == b"":
-                raise IOError("Unexpected EOF")
+                raise shortinput()
             self.buf.extend(ret)
             self.rb += len(ret)
         ret = bytes(self.buf[:ra])
@@ -98,7 +102,7 @@ class limitreader(object):
             ra = min(ra, 1024)
             ret = self.bk.read(ra)
             if ret == b"":
-                raise IOError("Unpexpected EOF")
+                raise shortinput()
             self.buf.extend(ret)
             self.rb += len(ret)
 

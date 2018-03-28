@@ -1,3 +1,4 @@
+import os
 from . import dispatch, proto, env
 from .sp import xhtml
 h = xhtml.cons()
@@ -84,3 +85,38 @@ class unmodified(dispatch.restart):
         req.status(304, "Not Modified")
         req.ohead["Content-Length"] = "0"
         return []
+
+class fileiter(object):
+    def __init__(self, fp):
+        self.fp = fp
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.fp is None:
+            raise StopIteration()
+        data = self.fp.read(16384)
+        if data == b"":
+            self.fp.close()
+            self.fp = None
+            raise StopIteration()
+        return data
+
+    def close(self):
+        if self.fp is not None:
+            self.fp.close()
+            self.fp = None
+
+class fileresp(dispatch.restart):
+    def __init__(self, fp, ctype):
+        self.fp = fp
+        self.ctype = ctype
+
+    def handle(self, req):
+        req.ohead["Content-Type"] = self.ctype
+        if hasattr(self.fp, "fileno"):
+            sz = os.fstat(self.fp.fileno()).st_size
+            if sz > 0:
+                req.ohead["Content-Length"] = str(sz)
+        return fileiter(self.fp)

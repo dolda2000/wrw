@@ -238,3 +238,84 @@ def unb64(es):
     if (len(es) % 4) != 0:
         es += b"=" * (4 - (len(es) % 4))
     return base64.b64decode(es)
+
+def _quoprisafe():
+    ret = [False] * 256
+    for c in "-!*+/":
+        ret[ord(c)] = True
+    for c in range(ord('0'), ord('9') + 1):
+        ret[c] = True
+    for c in range(ord('A'), ord('Z') + 1):
+        ret[c] = True
+    for c in range(ord('a'), ord('z') + 1):
+        ret[c] = True
+    return ret
+_quoprisafe = _quoprisafe()
+def quopri(s, charset="utf-8"):
+    bv = s.encode(charset)
+    qn = sum(not _quoprisafe[b] for b in bv)
+    if qn == 0:
+        return s
+    if qn > len(bv) / 2:
+        return "=?%s?B?%s?=" % (charset, enb64(bv))
+    else:
+        return "=?%s?Q?%s?=" % (charset, "".join(chr(b) if _quoprisafe[b] else "=%02X" % b for b in bv))
+
+class mimeparam(object):
+    def __init__(self, name, val, fallback=None, charset="utf-8", lang=""):
+        self.name = name
+        self.val = val
+        self.fallback = fallback
+        self.charset = charset
+        self.lang = lang
+
+    def __str__(self):
+        self.name.encode("ascii")
+        try:
+            self.val.encode("ascii")
+        except UnicodeError:
+            pass
+        else:
+            return "%s=%s" % (self.name, self.val)
+        val = self.val.encode(self.charset)
+        self.charset.encode("ascii")
+        self.lang.encode("ascii")
+        ret = ""
+        if self.fallback is not None:
+            self.fallback.encode("ascii")
+            ret += "%s=%s; " % (self.name, self.fallback)
+        ret += "%s*=%s'%s'%s" % (self.name, self.charset, self.lang, urlq(val))
+        return ret
+
+class mimeheader(object):
+    def __init__(self, name, val, *, mime_charset="utf-8", mime_lang="", **params):
+        self.name = name
+        self.val = val
+        self.params = {}
+        self.charset = mime_charset
+        self.lang = mime_lang
+        for k, v in params.items():
+            self[k] = v
+
+    def __getitem__(self, nm):
+        return self.params[nm.lower()]
+
+    def __setitem__(self, nm, val):
+        if not isinstance(val, mimeparam):
+            val = mimeparam(nm, val, charset=self.charset, lang=self.lang)
+        self.params[nm.lower()] = val
+
+    def __delitem__(self, nm):
+        del self.params[nm.lower()]
+
+    def value(self):
+        parts = []
+        if self.val != None:
+            parts.append(quopri(self.val))
+        parts.extend(str(x) for x in self.params.values())
+        return("; ".join(parts))
+
+    def __str__(self):
+        if self.name is None:
+            return self.value()
+        return "%s: %s" % (self.name, self.value())

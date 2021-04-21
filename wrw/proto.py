@@ -106,7 +106,7 @@ def urlq(url):
     if isinstance(url, str):
         url = url.encode("utf-8")
     ret = ""
-    invalid = b"%;&=#?/\"'"
+    invalid = b"%;&=+#?/\"'"
     for c in url:
         if c in invalid or (c <= 32) or (c >= 128):
             ret += "%%%02X" % c

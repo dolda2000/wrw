@@ -1,4 +1,4 @@
-import time, calendar, collections, binascii, base64
+import time, calendar, collections.abc, binascii, base64
 
 statusinfo = {
     400: ("Bad Request", "Invalid HTTP request."),
@@ -210,7 +210,7 @@ def parurl(url, pars={}, **augment):
 def enhex(bs):
     return base64.b16encode(bs).decode("us-ascii")
 def unhex(es):
-    if not isinstance(es, collections.ByteString):
+    if not isinstance(es, collections.abc.ByteString):
         try:
             es = es.encode("us-ascii")
         except UnicodeError:
@@ -219,7 +219,7 @@ def unhex(es):
 def enb32(bs):
     return base64.b32encode(bs).decode("us-ascii")
 def unb32(es):
-    if not isinstance(es, collections.ByteString):
+    if not isinstance(es, collections.abc.ByteString):
         try:
             es = es.encode("us-ascii")
         except UnicodeError:
@@ -231,7 +231,7 @@ def unb32(es):
 def enb64(bs):
     return base64.b64encode(bs).decode("us-ascii")
 def unb64(es):
-    if not isinstance(es, collections.ByteString):
+    if not isinstance(es, collections.abc.ByteString):
         try:
             es = es.encode("us-ascii")
         except UnicodeError:

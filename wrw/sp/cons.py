@@ -1,4 +1,4 @@
-import sys, collections
+import sys, collections.abc
 import xml.dom.minidom
 
 class node(object):
@@ -64,7 +64,7 @@ class context(object):
         new = self.nodefrom(child)
         if new is not None:
             node.children.append(new)
-        elif isinstance(child, collections.Iterable):
+        elif isinstance(child, collections.abc.Iterable):
             for ch in child:
                 self.addchild(node, ch)
         else:

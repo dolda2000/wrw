@@ -5,7 +5,7 @@ __all__ = ["formdata"]
 
 def formparse(req):
     buf = {}
-    buf.update(urllib.parse.parse_qsl(req.query))
+    buf.update(urllib.parse.parse_qsl(req.query, keep_blank_values=True))
     if req.ihead.get("Content-Type") == "application/x-www-form-urlencoded":
         try:
             rbody = req.input.read(2 ** 20)
@@ -13,7 +13,7 @@ def formparse(req):
             return exc
         if len(rbody) >= 2 ** 20:
             return ValueError("x-www-form-urlencoded data is absurdly long")
-        buf.update(urllib.parse.parse_qsl(rbody.decode("latin1")))
+        buf.update(urllib.parse.parse_qsl(rbody.decode("latin1"), keep_blank_values=True))
     return buf
 
 class badmultipart(IOError):

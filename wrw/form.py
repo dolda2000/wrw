@@ -14,7 +14,7 @@ def formparse(req):
             return exc
         if len(rbody) >= 2 ** 20:
             return ValueError("x-www-form-urlencoded data is absurdly long")
-        buf.update(urllib.parse.parse_qsl(rbody.decode("latin1"), encoding=ctparse.get("charset", "utf-8"), keep_blank_values=True))
+        buf.update(urllib.parse.parse_qsl(rbody.decode("latin1"), encoding=ctpars.get("charset", "utf-8"), keep_blank_values=True))
     return buf
 
 class badmultipart(IOError):

@@ -6,14 +6,15 @@ __all__ = ["formdata"]
 def formparse(req):
     buf = {}
     buf.update(urllib.parse.parse_qsl(req.query, keep_blank_values=True))
-    if req.ihead.get("Content-Type") == "application/x-www-form-urlencoded":
+    ctype, ctpars = proto.pmimehead(req.ihead.get("Content-Type", ""))
+    if ctype == "application/x-www-form-urlencoded":
         try:
             rbody = req.input.read(2 ** 20)
         except IOError as exc:
             return exc
         if len(rbody) >= 2 ** 20:
             return ValueError("x-www-form-urlencoded data is absurdly long")
-        buf.update(urllib.parse.parse_qsl(rbody.decode("latin1"), keep_blank_values=True))
+        buf.update(urllib.parse.parse_qsl(rbody.decode("latin1"), encoding=ctparse.get("charset", "utf-8"), keep_blank_values=True))
     return buf
 
 class badmultipart(IOError):

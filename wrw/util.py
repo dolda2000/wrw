@@ -26,7 +26,7 @@ def formparams(callable):
                     args[par.name] = data[par.name]
         for par in sig.parameters.values():
             if par.default is inspect.Parameter.empty and par.name not in args:
-                raise resp.httperror(400, "Missing parameter", ("The query parameter `", resp.h.code(spec.args[i]), "' is required but not supplied."))
+                raise resp.httperror(400, "Missing parameter", ("The query parameter `", resp.h.code(par.name), "' is required but not supplied."))
         return callable(**args)
     wrapper.__wrapped__ = callable
     return wrapper

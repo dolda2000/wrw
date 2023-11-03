@@ -25,6 +25,8 @@ def formparams(callable):
                 if par.name in data:
                     args[par.name] = data[par.name]
         for par in sig.parameters.values():
+            if par.kind is inspect.Parameter.VAR_KEYWORD:
+                continue
             if par.default is inspect.Parameter.empty and par.name not in args:
                 raise resp.httperror(400, "Missing parameter", ("The query parameter `", resp.h.code(par.name), "' is required but not supplied."))
         return callable(**args)

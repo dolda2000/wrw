@@ -10,9 +10,14 @@ def wsgiwrap(callable):
 def formparams(callable):
     sig = inspect.signature(callable)
     haskw = inspect.Parameter.VAR_KEYWORD in (par.kind for par in sig.parameters.values())
+
+    def mangle(nm):
+        return nm.replace("-", "_")
+
     def wrapper(req):
         try:
-            data = dict(form.formdata(req).items())
+            data = dict((mangle(key), val) for (key, val)
+                        in form.formdata(req).items())
         except IOError:
             raise resp.httperror(400, "Invalid request", "Form data was incomplete")
         
@@ -30,6 +35,7 @@ def formparams(callable):
             if par.default is inspect.Parameter.empty and par.name not in args:
                 raise resp.httperror(400, "Missing parameter", ("The query parameter `", resp.h.code(par.name), "' is required but not supplied."))
         return callable(**args)
+
     wrapper.__wrapped__ = callable
     return wrapper
 

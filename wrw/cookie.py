@@ -31,6 +31,8 @@ class cookiedict(object):
     def add(self, name, value, **kw):
         self.codec[name] = value
         for key, value in kw.items():
+            if key == "maxage":
+                key = "max-age"
             self.codec[name][key] = value
 
     def __setitem__(self, name, value):

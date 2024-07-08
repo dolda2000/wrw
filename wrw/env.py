@@ -52,7 +52,7 @@ class binding(object):
     __slots__ = ["bindings"]
     def __init__(self, bindings):
         if isinstance(bindings, dict):
-            bindings = bindings.items()
+            bindings = list(bindings.items())
         self.bindings = bindings
 
     def __enter__(self):
@@ -84,3 +84,21 @@ class var(object):
 
     def binding(self, val):
         return binding([(self, val)])
+
+def boundvars(bindings, dynamic=[]):
+    if isinstance(bindings, dict):
+        bindings = list(bindings.items())
+    if isinstance(dynamic, dict):
+        dynamic = list(dynamic.items())
+    def dec(fun):
+        def wrapper(*args, **kwargs):
+            calc = bindings
+            if dynamic:
+                calc = list(calc)
+                for var, val in dynamic:
+                    calc.append((var, val()))
+            with binding(bindings):
+                return fun(*args, **kwargs)
+        wrapper.__wrapped__ = callable
+        return wrapper
+    return dec

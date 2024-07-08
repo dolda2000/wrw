@@ -99,6 +99,6 @@ def boundvars(bindings, dynamic=[]):
                     calc.append((var, val()))
             with binding(bindings):
                 return fun(*args, **kwargs)
-        wrapper.__wrapped__ = callable
+        wrapper.__wrapped__ = fun
         return wrapper
     return dec

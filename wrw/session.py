@@ -79,7 +79,6 @@ class session(object):
         return ret
 
     def __setstate__(self, st):
-        print(st)
         if isinstance(st, list):
             # Only for the old session format; remove me in due time.
             for k, v in st:
@@ -93,8 +92,7 @@ class session(object):
             for item in st["data"]:
                 try:
                     k, v = itemunpickler(io.BytesIO(item), session=self).load()
-                except Exception as exc:
-                    print(exc)
+                except Exception:
                     continue
                 self.dict[k] = v
                 if hasattr(v, "sessdirty"):

@@ -83,6 +83,7 @@ class session(object):
             # Only for the old session format; remove me in due time.
             for k, v in st:
                 self.__dict__[k] = v
+            self.dirtyp = True
         else:
             self.dict = {}
             self.dctl = set()
@@ -93,6 +94,7 @@ class session(object):
                 try:
                     k, v = itemunpickler(io.BytesIO(item), session=self).load()
                 except Exception:
+                    self.dirtyp = True
                     continue
                 self.dict[k] = v
                 if hasattr(v, "sessdirty"):

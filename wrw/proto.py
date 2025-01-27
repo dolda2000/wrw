@@ -47,7 +47,7 @@ def httpdate(ts):
 def phttpdate(dstr):
     tz = dstr[-6:]
     dstr = dstr[:-6]
-    if tz[0] != " " or (tz[1] != "+" and tz[1] != "-") or not tz[2:].isdigit():
+    if len(tz) < 6 or tz[0] != " " or (tz[1] != "+" and tz[1] != "-") or not tz[2:].isdigit():
         return None
     tz = int(tz[1:])
     tz = (((tz / 100) * 60) + (tz % 100)) * 60

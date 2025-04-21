@@ -12,6 +12,10 @@ class raw(node, str):
     def __todom__(self, doc):
         raise Exception("Cannot convert raw code to DOM objects")
 
+class comment(node, str):
+    def __todom__(self, doc):
+        return doc.createComment(self)
+
 class element(node):
     def __init__(self, ns, name, ctx):
         self.ns = ns

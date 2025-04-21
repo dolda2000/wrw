@@ -40,6 +40,8 @@ def flatiter(root, short=True):
                 yield "", ch
             elif isinstance(ch, cons.raw):
                 yield "!", ch
+            elif isinstance(ch, cons.comment):
+                yield "-", ch
             else:
                 raise Exception("Unknown object in element tree: " + el)
 
@@ -123,6 +125,9 @@ class formatter(object):
     def rawcode(self, el):
         self.write(el)
 
+    def comment(self, el):
+        self.write("<!-- " + str(el) + "-->")
+
     def start(self, el):
         self.write('<?xml version="1.0" encoding="' + self.charset + '" ?>\n')
         if isinstance(el, cons.doctype):
@@ -145,6 +150,8 @@ class formatter(object):
             self.text(el)
         elif ev == "!":
             self.rawcode(el)
+        elif ev == "-":
+            self.comment(el)
         elif ev == "^":
             self.start(el)
         elif ev == "$":

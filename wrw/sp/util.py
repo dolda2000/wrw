@@ -126,7 +126,7 @@ class formatter(object):
         self.write(el)
 
     def comment(self, el):
-        self.write("<!-- " + str(el) + "-->")
+        self.write("<!-- " + str(el) + " -->")
 
     def start(self, el):
         self.write('<?xml version="1.0" encoding="' + self.charset + '" ?>\n')

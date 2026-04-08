@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wrw"
+version = "0.1"
+description = "Simple WSGI request wrapper library"
+authors = [{name = "Fredrik Tolf", email = "fredrik@dolda2000.com"}]
+
+[tool.setuptools]
+package-data."wrw.makolib" = ["*"]

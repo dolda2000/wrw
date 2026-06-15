@@ -110,7 +110,10 @@ class acceptable(object):
 
 def parseaccept(hstr):
     ret = []
-    for type, pars in (pmimehead(part) for part in hstr.split(',')):
+    for part in hstr.split(','):
+        if part.strip() == "":
+            continue
+        type, pars = pmimehead(part)
         mpars = {}
         apars = {}
         q = None
@@ -135,7 +138,10 @@ def parseaccept(hstr):
 
 def parseacceptlike(hstr):
     ret = []
-    for type, pars in (pmimehead(part) for part in hstr.split(',')):
+    for part in hstr.split(','):
+        if part.strip() == "":
+            continue
+        type, pars = pmimehead(part)
         try:
             q = float(pars.pop("q", "1"))
         except ValueError:
@@ -144,8 +150,13 @@ def parseacceptlike(hstr):
     return ret
 
 def accept(accepted, provided, default=Exception, *, key=None):
+    from . import req
+    if isinstance(accepted, req.request):
+        accepted = accepted.ihead.get("Accept", "")
     if isinstance(accepted, str):
         accepted = parseaccept(accepted)
+    if len(accepted) == 0:
+        return provided[0]
     found = None
     foundq = None
     for prov in provided:
@@ -175,6 +186,8 @@ def accept(accepted, provided, default=Exception, *, key=None):
 def acceptlike(accepted, provided, default=Exception, *, key=None):
     if isinstance(accepted, str):
         accepted = parseacceptlike(accepted)
+    if len(accepted) == 0:
+        return provided[0]
     found = None
     foundq = None
     for prov in provided:

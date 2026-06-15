@@ -102,6 +102,102 @@ def pmimehead(hstr):
         pars[k.lower()] = v
     return val, pars
 
+class acceptable(object):
+    def __init__(self, value, q, pars):
+        self.value = value
+        self.q = q
+        self.pars = pars
+
+def parseaccept(hstr):
+    ret = []
+    for type, pars in (pmimehead(part) for part in hstr.split(',')):
+        mpars = {}
+        apars = {}
+        q = None
+        for k, v in pars.items():
+            if k == "q":
+                try:
+                    q = float(v)
+                except ValueError:
+                    q = 1.0
+            elif q is None:
+                mpars[k] = v
+            else:
+                apars[k] = v
+        if q is None:
+            q = 1.0
+        if '/' in type:
+            major, minor = type.split('/', 1)
+        else:
+            major, minor = type, ""
+        ret.append(acceptable((major, minor, mpars), q, apars))
+    return ret
+
+def parseacceptlike(hstr):
+    ret = []
+    for type, pars in (pmimehead(part) for part in hstr.split(',')):
+        try:
+            q = float(pars.pop("q", "1"))
+        except ValueError:
+            q = 1.0
+        ret.append(acceptable(type, q, pars))
+    return ret
+
+def accept(accepted, provided, default=Exception, *, key=None):
+    if isinstance(accepted, str):
+        accepted = parseaccept(accepted)
+    found = None
+    foundq = None
+    for prov in provided:
+        pmajor, pminor = (prov if key is None else key(prov)).split('/', 1)
+        for acc in accepted:
+            amajor, aminor, pars = acc.value
+            if acc.q <= 0:
+                continue
+            if amajor == "*":
+                q = (acc.q, 0)
+            elif amajor == pmajor and aminor == "*":
+                q = (acc.q, 1)
+            elif amajor == pmajor and aminor == pminor:
+                q = (acc.q, 2)
+            else:
+                continue
+            if found is None or q > foundq:
+                found = prov
+                foundq = q
+    if found is None:
+        if default is Exception:
+            from . import resp
+            raise resp.httperror(406)
+        return default
+    return found
+
+def acceptlike(accepted, provided, default=Exception, *, key=None):
+    if isinstance(accepted, str):
+        accepted = parseacceptlike(accepted)
+    found = None
+    foundq = None
+    for prov in provided:
+        pkey = prov if key is None else key(prov)
+        for acc in accepted:
+            if acc.q <= 0:
+                continue
+            if acc.value == "*":
+                q = (acc.q, 0)
+            elif acc.value == pkey:
+                q = (acc.q, 1)
+            else:
+                continue
+            if found is None or q > foundq:
+                found = prov
+                foundq = q
+    if found is None:
+        if default is Exception:
+            from . import resp
+            raise resp.httperror(406)
+        return default
+    return found
+
 def htmlq(html):
     ret = ""
     for c in html:
